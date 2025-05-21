@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Image and Text</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for a clean sans-serif look */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen flex items-center justify-center p-4">
+    <div class="flex flex-col items-center justify-center w-full max-w-md mx-auto">
+        <div class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mb-8 rounded-lg overflow-hidden shadow-lg">
+            <img
+                src="./assets/img/comingsoon"
+                alt="Coming Soon!"
+                class="w-full h-auto rounded-lg"
+                onerror="this.onerror=null;this.src='https://placehold.co/600x400/555555/EEEEEE?text=Image+Not+Found';"
+            >
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl text-center">
+            <p class="text-lg sm:text-xl md:text-2xl font-light leading-relaxed">
+                Imagine a world where every item you come across has been handpicked—curated with care, passion, and an eye for quality. A world where the endless scroll of Amazon becomes a streamlined gallery of must-haves, hidden gems, and irresistible deals. /nThis isn’t just another shopping page. It’s a thoughtfully crafted experience. /nWhether it’s the gadget that simplifies your life, the book that sparks your imagination, or the deal that feels too good to be true—this is where you find it all. /nWe’ve done the digging. You reap the rewards. /nWelcome to your curated corner of the internet. Welcome to better shopping.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
