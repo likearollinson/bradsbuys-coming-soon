@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NiCKoTEEn dreams</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Nunito:wght@400;700;800&display=swap');
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #1e3a8a 100%);
+            color: #fff;
+            font-family: 'Nunito', sans-serif;
+        }
+
+```
+    /* Loading Screen */
+    #loading-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #1a237e, #283593, #3949ab, #3f51b5);
+        background-size: 400% 400%;
+        animation: oceanWave 4s ease-in-out infinite;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        color: white;
+    }
+    
+    @keyframes oceanWave {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .loading-spinner {
+        width: 80px;
+        height: 80px;
+        border: 8px solid rgba(255,255,255,0.2);
+        border-left: 8px solid #87CEEB;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 2rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+        font-family: 'Pirata One', cursive;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-shadow: 3px 3px 0px #003366;
+    }
+    
+    .loading-progress {
+        width: 300px;
+        height: 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #87CEEB, #4169E1);
+        width: 0%;
+        transition: width 0.3s ease;
+        border-radius: 4px;
+    }
+    
+    .loading-tip {
+        font-size: 1.1rem;
+        text-align: center;
+        max-width: 400px;
+        line-height: 1.5;
+        opacity: 0.8;
+    }
+    
+    #intro-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, #87CEEB 0%, #4169E1 50%, #191970 100%);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        z-index: 100;
+        color: white;
+        transition: opacity 1s ease-out;
+    }
+    #intro-screen h1 {
+        font-family: 'Pirata One', cursive;
+        font-size: 5rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 4px 4px 0px #003366, -2px -2px 0px #66ccff;
+        color: #fff;
+    }
+    #intro-screen h2 {
+        font-family: 'Nunito', sans-serif;
+        font-size: 1.8rem;
+        margin-top: 0;
+        margin-bottom: 2rem;
+        text-shadow: 2px 2px 0px #003366;
+        color: #87CEEB;
+        max-width: 600px;
+        line-height: 1.4;
+    }
+    .action-button {
+        padding: 1rem 2rem;
+        margin: 0.5rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #003366;
+        background: linear-gradient(45deg, #87CEEB, #66ccff);
+        border: 3px solid #003366;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 15px rgba(0,51,102,0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .action-button:hover {
+        background: linear-gradient(45deg, #66ccff, #4169E1);
+        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 9px 20px rgba(0,51,102,0.6);
+    }
+    
+    /* Game HUD */
+    #game-canvas {
+        display: block;
+    }
+    #hud {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        text-shadow: 2px 2px 0px #003366;
+        z-index: 10;
+        background: rgba(0,51,102,0.9);
+        padding: 15px 20px;
+        border-radius: 15px;
+        border: 2px solid #87CEEB;
+        min-width: 200px;
+    }
+    
+    #inventory {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0,51,102,0.9);
+        padding: 15px;
+        border-radius: 15px;
+        border: 2px solid #87CEEB;
+        color: #fff;
+        font-size: 14px;
+        z-index: 10;
+    }
+    
+    .inventory-item {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+        padding: 5px;
+        background: rgba(135,206,235,0.2);
+        border-radius: 8px;
+    }
+    
+    #crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        z-index: 15;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    #message-box {
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(45deg, #4169E1, #1e3a8a);
+        color: #87CEEB;
+        padding: 15px 25px;
+        border-radius: 25px;
+        border: 3px solid #fff;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        text-shadow: 2px 2px 0px #003366;
+        z-index: 20;
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+        max-width: 400px;
+    }
+
+    /* Mode Indicator */
+    #mode-indicator {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,51,102,0.9);
+        color: #87CEEB;
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: 2px solid #fff;
+        font-size: 16px;
+        font-weight: 700;
+        z-index: 15;
+    }
+
+    /* Mobile Controls */
+    #mobile-controls {
+        position: absolute;
+        bottom: 80px;
+        left: 20px;
+        right: 20px;
+        z-index: 50;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+    }
+    .mobile-btn {
+        background: linear-gradient(135deg, rgba(135,206,235,0.8), rgba(65,105,225,0.8));
+        border: 3px solid rgba(255,255,255,0.8);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        pointer-events: all;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        box-shadow: 0 4px 10px rgba(0,51,102,0.4);
+        margin: 5px;
+    }
+    .mobile-btn:active {
+        background: linear-gradient(135deg, rgba(102,204,255,0.9), rgba(30,58,138,0.9));
+        transform: scale(0.95);
+    }
+    #movement-pad {
+        display: flex;
+        flex-wrap: wrap;
+        width: 140px;
+    }
+    #action-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    
+    @media (min-width: 1024px) {
+        #mobile-controls {
+            display: none;
+        }
+    }
+
+    /* Audio Controls */
+    #audio-controls {
+        position: absolute;
+        top: 150px;
+        right: 20px;
+        z-index: 50;
+    }
+    .audio-btn {
+        background: linear-gradient(135deg, rgba(135,206,235,0.8), rgba(65,105,225,0.8));
+        border: 3px solid rgba(255,255,255,0.8);
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        color: white;
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        margin-bottom: 8px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        box-shadow: 0 4px 10px rgba(0,51,102,0.4);
+        transition: all 0.3s ease;
+    }
+    .audio-btn:hover {
+        transform: scale(1.1);
+    }
+    .audio-btn.muted {
+        background: linear-gradient(135deg, rgba(255,0,0,0.6), rgba(139,0,0,0.6));
+    }
+
+    /* How to Play Modal */
+    #how-to-play-modal {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,51,102,0.95);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+        overflow-y: auto;
+    }
+    #how-to-play-content {
+        background: linear-gradient(135deg, #1e3a8a, #003366);
+        color: #fff;
+        padding: 30px;
+        border-radius: 20px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        text-align: left;
+        border: 3px solid #87CEEB;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    #how-to-play-content h3 {
+        font-family: 'Pirata One', cursive;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #87CEEB;
+        text-shadow: 2px 2px 0px #003366;
+    }
+    #how-to-play-content h4 {
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #4169E1;
+        padding-bottom: 5px;
+        color: #66ccff;
+    }
+    #how-to-play-content p, #how-to-play-content ul {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    #how-to-play-content ul {
+        list-style-position: inside;
+    }
+    #how-to-play-content strong {
+        color: #87CEEB;
+    }
+    #how-to-play-content code {
+        background-color: #003366;
+        color: #66ccff;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-family: monospace;
+        border: 1px solid #4169E1;
+    }
+</style>
+```
+
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">NiCKoTEEn dreams</div>
+        <div class="loading-progress">
+            <div id="loading-bar" class="loading-bar"></div>
+        </div>
+        <div id="loading-tip" class="loading-tip">Setting sail for adventure...</div>
+    </div>
+
+```
+<!-- Intro Screen -->
+<div id="intro-screen">
+    <div style="background: rgba(0,0,0,0.3); padding: 2rem; border-radius: 1rem; border: 3px solid #fff;">
+        <h1>NiCKoTEEn dreams</h1>
+        <h2>Sail the seven seas, collect treasures, battle scarecrow zombies, and become the ultimate pirate surfer!</h2>
+    </div>
+    <div>
+        <button id="start-button" class="action-button">Set Sail!</button>
+        <button id="how-to-play-button" class="action-button">How to Play</button>
+    </div>
+</div>
+
+<!-- How to Play Modal -->
+<div id="how-to-play-modal">
+    <div id="how-to-play-content">
+        <h3>How to Become a Pirate Legend</h3>
+        <p><strong>Objective:</strong> Explore a vast ocean world filled with islands, treasures, and dangerous scarecrow zombies. Master surfing, skating, swimming, and combat to become the ultimate pirate!</p>
+        
+        <h4>Game Modes & Movement</h4>
+        <ul>
+            <li><strong>Swimming:</strong> Dive into the ocean and swim between islands</li>
+            <li><strong>Surfboard Paddling:</strong> Use your surfboard to travel faster across water</li>
+            <li><strong>Land Walking/Running:</strong> Explore islands on foot</li>
+            <li><strong>Skateboard Mode:</strong> Find wheels to transform your surfboard into a skateboard!</li>
+        </ul>
+
+        <h4>Combat System</h4>
+        <ul>
+            <li><strong>Guns:</strong> Find firearms to battle scarecrow zombies</li>
+            <li><strong>Swords:</strong> Engage in melee combat with blade weapons</li>
+            <li><strong>Aim Mode:</strong> Hold right-click or long-press to aim precisely</li>
+        </ul>
+
+        <h4>Collectibles & Progression</h4>
+        <ul>
+            <li><strong>Treasure Chests:</strong> +500 Points, valuable loot</li>
+            <li><strong>Wheels:</strong> Transform surfboard into skateboard</li>
+            <li><strong>Weapons:</strong> Guns and swords for combat</li>
+            <li><strong>Health Potions:</strong> Restore health during battle</li>
+        </ul>
+
+        <h4>Desktop Controls</h4>
+        <ul>
+            <li><strong>Move:</strong> <code>W, A, S, D</code> or <code>Arrow Keys</code></li>
+            <li><strong>Jump/Swim Up:</strong> <code>Space Bar</code></li>
+            <li><strong>Aim:</strong> <code>Right Click</code> (hold)</li>
+            <li><strong>Shoot/Attack:</strong> <code>Left Click</code></li>
+            <li><strong>Switch Weapon:</strong> <code>1, 2, 3</code> keys</li>
+            <li><strong>Interact:</strong> <code>E</code> key</li>
+        </ul>
+
+        <h4>Mobile Controls</h4>
+        <ul>
+            <li><strong>Move:</strong> Virtual joystick (bottom-left)</li>
+            <li><strong>Jump/Swim:</strong> Jump button</li>
+            <li><strong>Attack:</strong> Attack button</li>
+            <li><strong>Aim:</strong> Long-press attack button</li>
+        </ul>
+
+        <h4>World Exploration</h4>
+        <ul>
+            <li><strong>Islands:</strong> Each island has unique treasures and challenges</li>
+            <li><strong>Ocean Travel:</strong> Paddle between islands or swim for adventure</li>
+            <li><strong>Hidden Secrets:</strong> Explore every corner for rare items</li>
+            <li><strong>Zombie Encounters:</strong> Battle scarecrow zombies for rewards</li>
+        </ul>
+
+        <button id="close-modal-button" class="action-button" style="display: block; margin: 20px auto 0;">Ready to Sail!</button>
+    </div>
+</div>
+
+<!-- Game HUD -->
+<div id="hud" style="display: none;">
+    <div id="health">Health: 100</div>
+    <div id="score">Score: 0</div>
+    <div id="current-weapon">Weapon: Fists</div>
+</div>
+
+<div id="inventory" style="display: none;">
+    <div style="font-weight: bold; margin-bottom: 10px; color: #87CEEB;">Inventory</div>
+    <div class="inventory-item">
+        <span style="margin-right: 10px;">🔫</span>
+        <span id="gun-count">Guns: 0</span>
+    </div>
+    <div class="inventory-item">
+        <span style="margin-right: 10px;">⚔️</span>
+        <span id="sword-count">Swords: 0</span>
+    </div>
+    <div class="inventory-item">
+        <span style="margin-right: 10px;">🛞</span>
+        <span id="wheel-count">Wheels: 0/4</span>
+    </div>
+</div>
+
+<div id="crosshair"></div>
+<div id="message-box">Welcome to NiCKoTEEn dreams!</div>
+<div id="mode-indicator" style="display: none;">Swimming Mode</div>
+
+<div id="audio-controls" style="display: none;">
+    <button id="music-toggle" class="audio-btn" title="Toggle Music">🎵</button>
+</div>
+
+<!-- Mobile Controls -->
+<div id="mobile-controls" style="display: none;">
+    <div id="movement-pad">
+        <div style="width: 60px;"></div>
+        <button id="move-forward" class="mobile-btn">↑</button>
+        <div style="width: 60px;"></div>
+        <button id="move-left" class="mobile-btn">←</button>
+        <div style="width: 60px;"></div>
+        <button id="move-right" class="mobile-btn">→</button>
+        <div style="width: 60px;"></div>
+        <button id="move-backward" class="mobile-btn">↓</button>
+    </div>
+    <div id="action-buttons">
+        <button id="jump-button" class="mobile-btn">🏄</button>
+        <button id="attack-button" class="mobile-btn">⚔️</button>
+    </div>
+</div>
+
+<canvas id="game-canvas"></canvas>
+
+<script type="module">
+    // --- Loading System ---
+    const loadingScreen = document.getElementById('loading-screen');
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingTip = document.getElementById('loading-tip');
+    const introScreen = document.getElementById('intro-screen');
+
+    const loadingTips = [
+        "Setting sail for adventure...",
+        "Loading tropical islands...",
+        "Spawning scarecrow zombies...",
+        "Preparing your surfboard...",
+        "Hiding treasure chests...",
+        "Tuning pirate music...",
+        "Sharpening swords and loading guns...",
+        "Creating ocean waves...",
+        "Almost ready to explore!"
+    ];
+
+    let loadingProgress = 0;
+    let tipIndex = 0;
+
+    function updateLoading() {
+        loadingProgress += Math.random() * 15 + 5;
+        if (loadingProgress > 100) loadingProgress = 100;
+        
+        loadingBar.style.width = loadingProgress + '%';
+        
+        if (Math.random() < 0.3 && tipIndex < loadingTips.length - 1) {
+            tipIndex++;
+            loadingTip.textContent = loadingTips[tipIndex];
+        }
+        
+        if (loadingProgress >= 100) {
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    introScreen.style.display = 'flex';
+                }, 500);
+            }, 1000);
+            return;
+        }
+        
+        setTimeout(updateLoading, 200 + Math.random() * 300);
+    }
+
+    // Start loading simulation
+    setTimeout(updateLoading, 500);
+
+    // --- Game Setup ---
+    const startButton = document.getElementById('start-button');
+    const howToPlayButton = document.getElementById('how-to-play-button');
+    const closeModalButton = document.getElementById('close-modal-button');
+    const howToPlayModal = document.getElementById('how-to-play-modal');
+    const musicToggle = document.getElementById('music-toggle');
+    const hud = document.getElementById('hud');
+    const inventory = document.getElementById('inventory');
+    const mobileControls = document.getElementById('mobile-controls');
+    const audioControls = document.getElementById('audio-controls');
+    const modeIndicator = document.getElementById('mode-indicator');
+    const crosshair = document.getElementById('crosshair');
+    const messageBox = document.getElementById('message-box');
+
+    // Game state
+    let scene, camera, renderer, world, clock;
+    let player = {
+        mesh: null,
+        body: null,
+        health: 100,
+        mode: 'swimming', // swimming, surfing, walking, skating
+        hasWheels: 0,
+        weapons: { guns: 0, swords: 0 },
+        currentWeapon: 'fists',
+        isAiming: false
+    };
+    
+    const keys = {};
+    const gameObjects = [];
+    const islands = [];
+    const zombies = [];
+    let score = 0;
+    let gameStarted = false;
+
+    // Audio setup
+    let synth, bassLine, drums, musicPlaying = false;
+    let pirateTheme, currentNote = 0;
+
+    // Pirate/surf rock melody
+    const pirateNotes = [
+        'D4', 'E4', 'F4', 'G4', 'A4', 'Bb4', 'A4', 'G4',
+        'F4', 'G4', 'A4', 'D5', 'C5', 'Bb4', 'A4', 'G4',
+        'F4', 'E4', 'D4', 'C4', 'D4', 'E4', 'F4', 'G4',
+        'A4', 'G4', 'F4', 'E4', 'D4', 'D4', 'E4', 'F4'
+    ];
+
+    // --- Event Listeners ---
+    startButton.addEventListener('click', () => {
+        introScreen.style.opacity = '0';
+        setTimeout(async () => {
+            introScreen.style.display = 'none';
+            await initAudio();
+            init();
+        }, 1000);
+    });
+
+    howToPlayButton.addEventListener('click', () => {
+        howToPlayModal.style.display = 'flex';
+    });
+
+    closeModalButton.addEventListener('click', () => {
+        howToPlayModal.style.display = 'none';
+    });
+
+    // --- Audio System ---
+    async function initAudio() {
+        if (Tone.context.state !== 'running') {
+            await Tone.start();
+        }
+
+        // Pirate adventure synth
+        synth = new Tone.FMSynth({
+            harmonicity: 2,
+            modulationIndex: 8,
+            oscillator: { type: "sawtooth" },
+            envelope: { attack: 0.02, decay: 0.3, sustain: 0.4, release: 0.6 },
+            modulation: { type: "triangle" },
+            modulationEnvelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.4 }
+        }).toDestination();
+
+        const reverb = new Tone.Reverb(1.5).toDestination();
+        synth.connect(reverb);
+
+        bassLine = new Tone.FMSynth({
+            harmonicity: 1,
+            modulationIndex: 3,
+            oscillator: { type: "triangle" },
+            envelope: { attack: 0.02, decay: 0.2, sustain: 0.4, release: 0.4 },
+        }).toDestination();
+
+        drums = new Tone.NoiseSynth({
+            noise: { type: "brown" },
+            envelope: { attack: 0.01, decay: 0.3, sustain: 0.0 }
+        }).toDestination();
+
+        startPirateMusic();
+    }
+
+    function startPirateMusic() {
+        if (musicPlaying) return;
+        musicPlaying = true;
+
+        pirateTheme = new Tone.Loop((time) => {
+            synth.triggerAttackRelease(pirateNotes[currentNote], "8n", time);
+            currentNote = (currentNote + 1) % pirateNotes.length;
+        }, "8n");
+
+        const bassLoop = new Tone.Loop((time) => {
+            const bassNotes = ['D2', 'G2', 'A2', 'G2'];
+            const bassNote = bassNotes[Math.floor(currentNote / 8) % bassNotes.length];
+            bassLine.triggerAttackRelease(bassNote, "4n", time);
+        }, "4n");
+
+        const drumLoop = new Tone.Loop((time) => {
+            drums.triggerAttackRelease("8n", time);
+        }, "4n");
+
+        Tone.Transport.bpm.value = 120;
+        pirateTheme.start(0);
+        bassLoop.start(0);
+        drumLoop.start(0);
+        Tone.Transport.start();
+    }
+
+    function stopPirateMusic() {
+        if (!musicPlaying) return;
+        musicPlaying = false;
+        
+        if (pirateTheme) pirateTheme.stop();
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+    }
+
+    musicToggle.addEventListener('click', async () => {
+        if (!synth) {
+            await initAudio();
+            musicToggle.classList.remove('muted');
+            return;
+        }
+
+        if (musicPlaying) {
+            stopPirateMusic();
+            musicToggle.classList.add('muted');
+            musicToggle.textContent = '🔇';
+        } else {
+            startPirateMusic();
+            musicToggle.classList.remove('muted');
+            musicToggle.textContent = '🎵';
+        }
+    });
+
+    // --- Game Initialization ---
+    function init() {
+        gameStarted = true;
+        
+        // Show game UI
+        hud.style.display = 'block';
+        inventory.style.display = 'block';
+        mobileControls.style.display = 'flex';
+        audioControls.style.display = 'block';
+        modeIndicator.style.display = 'block';
+
+        // Initialize Three.js
+        scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
+        
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        camera.position.set(0, 10, 10);
+        
+        renderer = new THREE.WebGLRenderer({ 
+            canvas: document.getElementById('game-canvas'),
+            antialias: true 
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x87CEEB);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // Initialize Cannon.js physics
+        world = new CANNON.World();
+        world.gravity.set(0, -20, 0);
+        world.broadphase = new CANNON.NaiveBroadphase();
+
+        clock = new THREE.Clock();
+
+        // Create ocean
+        createOcean();
+        
+        // Create player
+        createPlayer();
+```
