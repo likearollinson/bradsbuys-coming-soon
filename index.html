@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brad's Wave Rider - Coming Soon</title>
+    <title>NicoTEEN Dreams - Con Ife Adventure</title>
     <style>
         * {
             margin: 0;
@@ -14,197 +14,429 @@
 
 ```
     body {
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(180deg, #87CEEB 0%, #20B2AA 100%);
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #FFE4B5 100%);
         min-height: 100vh;
         overflow-x: hidden;
     }
 
-    .header {
+    .container {
+        position: relative;
+        min-height: 100vh;
+    }
+
+    /* Animated clouds */
+    .clouds {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .cloud {
+        position: absolute;
+        background: white;
+        border-radius: 50px;
+        opacity: 0.8;
+        animation: float-cloud 20s infinite linear;
+    }
+
+    .cloud::before,
+    .cloud::after {
+        content: '';
+        position: absolute;
+        background: white;
+        border-radius: 50px;
+    }
+
+    .cloud1 {
+        width: 80px;
+        height: 40px;
+        top: 20%;
+        left: -100px;
+        animation-duration: 25s;
+    }
+
+    .cloud1::before {
+        width: 50px;
+        height: 50px;
+        top: -25px;
+        left: 10px;
+    }
+
+    .cloud1::after {
+        width: 60px;
+        height: 40px;
+        top: -15px;
+        right: 10px;
+    }
+
+    .cloud2 {
+        width: 60px;
+        height: 30px;
+        top: 40%;
+        left: -80px;
+        animation-duration: 30s;
+        animation-delay: -10s;
+    }
+
+    .cloud2::before {
+        width: 40px;
+        height: 40px;
+        top: -20px;
+        left: 5px;
+    }
+
+    .cloud2::after {
+        width: 50px;
+        height: 30px;
+        top: -10px;
+        right: 5px;
+    }
+
+    @keyframes float-cloud {
+        0% { transform: translateX(-100px); }
+        100% { transform: translateX(calc(100vw + 100px)); }
+    }
+
+    /* Header */
+    header {
+        background: linear-gradient(135deg, #FF6B9D, #FFE66D);
+        padding: 2rem;
         text-align: center;
-        padding: 2rem 1rem;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border-bottom: 5px solid #FF8E53;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 10;
     }
 
     .logo {
-        font-size: 3rem;
+        display: inline-block;
+        position: relative;
+    }
+
+    .logo-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(45deg, #FF8E53, #FF6B9D);
+        border-radius: 50%;
+        border: 5px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        animation: bob 2s ease-in-out infinite;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    .logo-icon::before {
+        content: "⭐";
+        font-size: 2.5rem;
+        animation: sparkle 3s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    @keyframes sparkle {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(180deg); }
+    }
+
+    h1 {
+        font-size: 4rem;
         font-weight: bold;
-        background: linear-gradient(135deg, #FF6B35, #F7931E);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: white;
+        text-shadow: 3px 3px 0px #2F4F4F, 6px 6px 10px rgba(0,0,0,0.3);
         margin-bottom: 0.5rem;
+        letter-spacing: 2px;
     }
 
     .tagline {
-        font-size: 1.2rem;
-        color: #666;
-        margin-bottom: 1rem;
-    }
-
-    .coming-soon {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        font-size: 1.5rem;
         color: white;
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        display: inline-block;
+        text-shadow: 2px 2px 0px #2F4F4F;
         font-weight: bold;
     }
 
-    .game-container {
-        max-width: 800px;
-        margin: 2rem auto;
+    /* Navigation */
+    nav {
+        background: #4ECDC4;
         padding: 1rem;
-    }
-
-    .game-header {
         text-align: center;
-        margin-bottom: 1rem;
+        border-bottom: 3px solid #45B7B8;
+        position: relative;
+        z-index: 10;
     }
 
-    .game-title {
-        font-size: 2.5rem;
-        color: white;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        margin-bottom: 0.5rem;
-    }
-
-    .score-board {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .score-item {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.5rem 1rem;
-        border-radius: 15px;
+    .nav-button {
+        background: linear-gradient(135deg, #FFE66D, #FF8E53);
+        color: #2F4F4F;
+        border: 3px solid white;
+        padding: 12px 24px;
+        margin: 0 10px;
+        border-radius: 25px;
+        font-size: 1.1rem;
         font-weight: bold;
-        color: #333;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    #gameCanvas {
+    .nav-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        background: linear-gradient(135deg, #FF8E53, #FFE66D);
+    }
+
+    .nav-button.active {
+        background: linear-gradient(135deg, #FF6B9D, #FFE66D);
+        transform: translateY(-2px);
+    }
+
+    /* Main content */
+    main {
+        padding: 3rem 2rem;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+    }
+
+    .content-section {
+        display: none;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .content-section.active {
+        display: block;
+    }
+
+    .hero-content {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 30px;
+        padding: 3rem;
+        margin-bottom: 3rem;
+        border: 4px solid #4ECDC4;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        color: #2F4F4F;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 0px #4ECDC4;
+    }
+
+    .hero-description {
+        font-size: 1.3rem;
+        line-height: 1.6;
+        color: #2F4F4F;
+        margin-bottom: 2rem;
+    }
+
+    /* Game Section */
+    .game-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 4px solid #FF6B9D;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        margin: 2rem auto;
+        max-width: 800px;
+    }
+
+    .game-canvas {
+        border: 4px solid #4ECDC4;
+        border-radius: 15px;
+        background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
         display: block;
         margin: 0 auto;
-        border: 4px solid white;
-        border-radius: 15px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-        background: linear-gradient(180deg, #87CEEB 0%, #20B2AA 100%);
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
     }
 
-    .controls {
-        text-align: center;
-        margin: 1rem 0;
-        color: white;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    }
-
-    .control-buttons {
+    .game-controls {
+        margin-top: 1rem;
         display: flex;
         justify-content: center;
         gap: 1rem;
-        margin: 1rem 0;
         flex-wrap: wrap;
     }
 
-    .control-btn {
-        background: linear-gradient(135deg, #FF6B35, #F7931E);
+    .control-button {
+        background: linear-gradient(135deg, #4ECDC4, #45B7B8);
         color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 25px;
+        border: 3px solid white;
+        padding: 10px 20px;
+        border-radius: 20px;
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        min-width: 80px;
+        text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    .control-btn:hover {
+    .control-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
 
-    .control-btn:active {
-        transform: translateY(0);
+    .control-button:active {
+        transform: translateY(0px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    .game-over {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.9);
+    /* Features */
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 25px;
+        padding: 2rem;
+        border: 4px solid #FFE66D;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 230, 109, 0.3), transparent);
+        transform: rotate(45deg);
+        transition: all 0.5s ease;
+        opacity: 0;
+    }
+
+    .feature-card:hover::before {
+        animation: shine 0.5s ease-in-out;
+    }
+
+    @keyframes shine {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        border-color: #FF6B9D;
+    }
+
+    .feature-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .feature-title {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: #2F4F4F;
+        text-shadow: 1px 1px 0px #4ECDC4;
+    }
+
+    .feature-description {
+        color: #2F4F4F;
+        line-height: 1.5;
+        font-size: 1.1rem;
+    }
+
+    /* Footer */
+    footer {
+        background: linear-gradient(135deg, #2F4F4F, #4ECDC4);
         color: white;
         padding: 2rem;
-        border-radius: 20px;
         text-align: center;
-        display: none;
-        z-index: 1000;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        margin-top: 3rem;
+        border-top: 5px solid #FF6B9D;
+        position: relative;
+        z-index: 10;
     }
 
-    .restart-btn {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-top: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .restart-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .instructions {
-        background: rgba(255, 255, 255, 0.9);
-        margin: 2rem auto;
-        padding: 1.5rem;
-        border-radius: 15px;
-        max-width: 600px;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .instructions h3 {
-        color: #333;
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
         margin-bottom: 1rem;
     }
 
-    .instructions p {
-        color: #666;
-        line-height: 1.6;
-        margin-bottom: 0.5rem;
+    .social-link {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #FF6B9D, #FFE66D);
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #2F4F4F;
+        font-size: 1.8rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
 
+    .social-link:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+    }
+
+    /* Score display */
+    .score-display {
+        background: linear-gradient(135deg, #FFE66D, #FF8E53);
+        border: 3px solid white;
+        border-radius: 20px;
+        padding: 10px 20px;
+        margin: 1rem;
+        display: inline-block;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #2F4F4F;
+        text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Responsive design */
     @media (max-width: 768px) {
-        .game-title {
+        h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-title {
             font-size: 2rem;
         }
         
-        #gameCanvas {
+        .game-canvas {
             width: 100%;
             max-width: 400px;
             height: 300px;
         }
         
-        .control-buttons {
-            gap: 0.5rem;
-        }
-        
-        .control-btn {
-            padding: 10px 15px;
-            font-size: 0.9rem;
+        .nav-button {
+            margin: 5px;
+            padding: 8px 16px;
+            font-size: 1rem;
         }
     }
 </style>
@@ -212,330 +444,385 @@
 
 </head>
 <body>
-    <div class="header">
-        <div class="logo">🏄‍♂️ Brad's Buys</div>
-        <div class="tagline">Your Ultimate Shopping Destination</div>
-        <div class="coming-soon">🚀 Coming Soon</div>
-    </div>
+    <div class="container">
+        <!-- Animated clouds -->
+        <div class="clouds">
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+        </div>
 
 ```
-<div class="game-container">
-    <div class="game-header">
-        <h2 class="game-title">🌊 Wave Rider</h2>
-        <div class="score-board">
-            <div class="score-item">Score: <span id="score">0</span></div>
-            <div class="score-item">High Score: <span id="highScore">0</span></div>
-            <div class="score-item">Level: <span id="level">1</span></div>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <h1>NicoTEEN Dreams</h1>
+            <p class="tagline">Con Ife - Adventure Awaits!</p>
         </div>
-    </div>
+    </header>
 
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <!-- Navigation -->
+    <nav>
+        <button class="nav-button active" onclick="showSection('home')">🏠 Home</button>
+        <button class="nav-button" onclick="showSection('game')">🎮 Ocean Adventure</button>
+        <button class="nav-button" onclick="showSection('features')">✨ Features</button>
+        <button class="nav-button" onclick="showSection('about')">📖 About</button>
+    </nav>
 
-    <div class="controls">
-        <p>🎮 Use WASD keys or buttons below to surf the waves!</p>
-    </div>
+    <!-- Main Content -->
+    <main>
+        <!-- Home Section -->
+        <div id="home" class="content-section active">
+            <div class="hero-content">
+                <h2 class="hero-title">Welcome to Your Adventure!</h2>
+                <p class="hero-description">
+                    Set sail on an epic journey through colorful seas and magical islands! 
+                    Experience the charm of cel-shaded adventures with smooth sailing, 
+                    treasure hunting, and endless exploration in our Wind Waker-inspired world.
+                </p>
+                <button class="nav-button" onclick="showSection('game')">🚢 Start Your Journey!</button>
+            </div>
+        </div>
 
-    <div class="control-buttons">
-        <button class="control-btn" id="upBtn">⬆️ UP</button>
-        <button class="control-btn" id="downBtn">⬇️ DOWN</button>
-        <button class="control-btn" id="leftBtn">⬅️ LEFT</button>
-        <button class="control-btn" id="rightBtn">➡️ RIGHT</button>
-    </div>
-</div>
+        <!-- Game Section -->
+        <div id="game" class="content-section">
+            <div class="game-container">
+                <h2 class="hero-title">Ocean Adventure</h2>
+                <div class="score-display">⭐ Score: <span id="score">0</span> | 💰 Treasures: <span id="treasures">0</span></div>
+                <canvas id="gameCanvas" class="game-canvas" width="600" height="400"></canvas>
+                <div class="game-controls">
+                    <button class="control-button" onclick="game.movePlayer('up')">⬆️ Up</button>
+                    <button class="control-button" onclick="game.movePlayer('down')">⬇️ Down</button>
+                    <button class="control-button" onclick="game.movePlayer('left')">⬅️ Left</button>
+                    <button class="control-button" onclick="game.movePlayer('right')">➡️ Right</button>
+                    <button class="control-button" onclick="game.restart()">🔄 Restart</button>
+                </div>
+                <p style="margin-top: 1rem; color: #2F4F4F;">
+                    🚢 Sail your boat to collect treasures! Use WASD or arrow keys to move, or tap the buttons above!
+                </p>
+            </div>
+        </div>
 
-<div class="instructions">
-    <h3>🏄‍♂️ How to Play</h3>
-    <p>🌊 Ride the waves and collect shopping bags to increase your score!</p>
-    <p>🦈 Avoid the sharks and obstacles in the water</p>
-    <p>⚡ Collect power-ups for special abilities</p>
-    <p>🏆 Try to beat your high score and unlock new levels!</p>
-</div>
+        <!-- Features Section -->
+        <div id="features" class="content-section">
+            <div class="features">
+                <div class="feature-card">
+                    <span class="feature-icon">🌊</span>
+                    <h3 class="feature-title">Cel-Shaded Beauty</h3>
+                    <p class="feature-description">
+                        Experience the timeless art style of Wind Waker with vibrant colors, 
+                        smooth animations, and a cartoon aesthetic that never gets old.
+                    </p>
+                </div>
 
-<div id="gameOver" class="game-over">
-    <h2>🏄‍♂️ Game Over!</h2>
-    <p id="finalScore">Your Score: 0</p>
-    <p id="newRecord" style="display: none;">🎉 New High Score!</p>
-    <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+                <div class="feature-card">
+                    <span class="feature-icon">⛵</span>
+                    <h3 class="feature-title">Ocean Exploration</h3>
+                    <p class="feature-description">
+                        Sail across endless seas, discover hidden treasures, and explore 
+                        mysterious islands in your trusty sailboat adventure.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">🎨</span>
+                    <h3 class="feature-title">Colorful World</h3>
+                    <p class="feature-description">
+                        Immerse yourself in a world filled with bright blues, sunny yellows, 
+                        and magical gradients that bring joy to every moment.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div id="about" class="content-section">
+            <div class="hero-content">
+                <h2 class="hero-title">About NicoTEEN Dreams</h2>
+                <p class="hero-description">
+                    Inspired by the legendary Wind Waker's art style, NicoTEEN Dreams brings 
+                    you a nostalgic yet fresh adventure experience. With cel-shaded graphics, 
+                    vibrant colors, and smooth animations, we capture the magic of classic 
+                    adventure games while creating something entirely new.
+                </p>
+                <p class="hero-description">
+                    Join Link... er, join our hero on an unforgettable journey across the Great Sea!
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#" class="social-link">🏴‍☠️</a>
+            <a href="#" class="social-link">⚓</a>
+            <a href="#" class="social-link">🗺️</a>
+            <a href="#" class="social-link">💌</a>
+        </div>
+        <p>&copy; 2025 NicoTEEN Dreams. All adventures reserved. 🌊⭐</p>
+    </footer>
 </div>
 
 <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Game state
-    let gameRunning = true;
-    let score = 0;
-    let level = 1;
-    let highScore = localStorage.getItem('bradsSurfHighScore') || 0;
-    
-    // Update display
-    document.getElementById('highScore').textContent = highScore;
-    
-    // Player (surfer)
-    const player = {
-        x: 100,
-        y: canvas.height / 2,
-        width: 40,
-        height: 30,
-        speed: 5,
-        color: '#FF6B35'
-    };
-    
-    // Game objects arrays
-    let waves = [];
-    let collectibles = [];
-    let obstacles = [];
-    let particles = [];
-    
-    // Wave generation
-    function createWave() {
-        return {
-            x: canvas.width,
-            y: Math.random() * (canvas.height - 100) + 50,
-            width: 60,
-            height: 15,
-            speed: 2 + level * 0.3,
-            opacity: 0.6
-        };
+    // Navigation functionality
+    function showSection(sectionId) {
+        // Hide all sections
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.remove('active'));
+        
+        // Show selected section
+        document.getElementById(sectionId).classList.add('active');
+        
+        // Update nav buttons
+        const buttons = document.querySelectorAll('.nav-button');
+        buttons.forEach(button => button.classList.remove('active'));
+        event.target.classList.add('active');
     }
-    
-    // Collectible generation (shopping bags)
-    function createCollectible() {
-        return {
-            x: canvas.width,
-            y: Math.random() * (canvas.height - 60) + 30,
-            width: 25,
-            height: 25,
-            speed: 3 + level * 0.2,
-            type: Math.random() > 0.8 ? 'powerup' : 'bag',
-            collected: false
-        };
-    }
-    
-    // Obstacle generation (sharks)
-    function createObstacle() {
-        return {
-            x: canvas.width,
-            y: Math.random() * (canvas.height - 80) + 40,
-            width: 50,
-            height: 30,
-            speed: 2.5 + level * 0.25
-        };
-    }
-    
-    // Particle effects
-    function createParticle(x, y, color) {
-        return {
-            x: x,
-            y: y,
-            vx: (Math.random() - 0.5) * 6,
-            vy: (Math.random() - 0.5) * 6,
-            life: 30,
-            color: color
-        };
-    }
-    
-    // Input handling
-    const keys = {};
-    
-    document.addEventListener('keydown', (e) => {
-        keys[e.key.toLowerCase()] = true;
-    });
-    
-    document.addEventListener('keyup', (e) => {
-        keys[e.key.toLowerCase()] = false;
-    });
-    
-    // Touch controls
-    document.getElementById('upBtn').addEventListener('click', () => player.y -= 20);
-    document.getElementById('downBtn').addEventListener('click', () => player.y += 20);
-    document.getElementById('leftBtn').addEventListener('click', () => player.x -= 20);
-    document.getElementById('rightBtn').addEventListener('click', () => player.x += 20);
-    
-    // Game loop
-    function gameLoop() {
-        if (!gameRunning) return;
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw ocean background
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#87CEEB');
-        gradient.addColorStop(1, '#20B2AA');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Update player
-        if (keys['w'] || keys['arrowup']) player.y -= player.speed;
-        if (keys['s'] || keys['arrowdown']) player.y += player.speed;
-        if (keys['a'] || keys['arrowleft']) player.x -= player.speed;
-        if (keys['d'] || keys['arrowright']) player.x += player.speed;
-        
-        // Keep player in bounds
-        player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-        player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
-        
-        // Generate objects
-        if (Math.random() < 0.02) waves.push(createWave());
-        if (Math.random() < 0.015) collectibles.push(createCollectible());
-        if (Math.random() < 0.008 + level * 0.002) obstacles.push(createObstacle());
-        
-        // Update and draw waves
-        waves = waves.filter(wave => {
-            wave.x -= wave.speed;
-            
-            // Draw wave
-            ctx.save();
-            ctx.globalAlpha = wave.opacity;
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.ellipse(wave.x, wave.y, wave.width, wave.height, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-            
-            return wave.x + wave.width > 0;
-        });
-        
-        // Update and draw collectibles
-        collectibles = collectibles.filter(item => {
-            if (!item.collected) {
-                item.x -= item.speed;
-                
-                // Draw collectible
-                if (item.type === 'bag') {
-                    ctx.fillStyle = '#FFD700';
-                    ctx.fillRect(item.x, item.y, item.width, item.height);
-                    ctx.fillStyle = '#000';
-                    ctx.font = '16px Arial';
-                    ctx.fillText('🛍️', item.x + 2, item.y + 18);
-                } else {
-                    ctx.fillStyle = '#FF69B4';
-                    ctx.fillRect(item.x, item.y, item.width, item.height);
-                    ctx.fillStyle = '#000';
-                    ctx.font = '16px Arial';
-                    ctx.fillText('⚡', item.x + 2, item.y + 18);
-                }
-                
-                // Collision with player
-                if (player.x < item.x + item.width &&
-                    player.x + player.width > item.x &&
-                    player.y < item.y + item.height &&
-                    player.y + player.height > item.y) {
-                    
-                    item.collected = true;
-                    score += item.type === 'powerup' ? 50 : 10;
-                    
-                    // Create particles
-                    for (let i = 0; i < 5; i++) {
-                        particles.push(createParticle(item.x, item.y, item.type === 'powerup' ? '#FF69B4' : '#FFD700'));
-                    }
-                    
-                    return false;
-                }
-            }
-            
-            return item.x + item.width > 0 && !item.collected;
-        });
-        
-        // Update and draw obstacles
-        obstacles = obstacles.filter(obstacle => {
-            obstacle.x -= obstacle.speed;
-            
-            // Draw shark
-            ctx.fillStyle = '#696969';
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            ctx.fillStyle = '#000';
-            ctx.font = '20px Arial';
-            ctx.fillText('🦈', obstacle.x + 10, obstacle.y + 22);
-            
-            // Collision with player
-            if (player.x < obstacle.x + obstacle.width &&
-                player.x + player.width > obstacle.x &&
-                player.y < obstacle.y + obstacle.height &&
-                player.y + player.height > obstacle.y) {
-                
-                gameOver();
-                return false;
-            }
-            
-            return obstacle.x + obstacle.width > 0;
-        });
-        
-        // Update and draw particles
-        particles = particles.filter(particle => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.life--;
-            
-            ctx.save();
-            ctx.globalAlpha = particle.life / 30;
-            ctx.fillStyle = particle.color;
-            ctx.fillRect(particle.x, particle.y, 4, 4);
-            ctx.restore();
-            
-            return particle.life > 0;
-        });
-        
-        // Draw player (surfer)
-        ctx.fillStyle = player.color;
-        ctx.fillRect(player.x, player.y, player.width, player.height);
-        ctx.fillStyle = '#000';
-        ctx.font = '24px Arial';
-        ctx.fillText('🏄‍♂️', player.x + 8, player.y + 22);
-        
-        // Update level
-        if (score > level * 100) {
-            level++;
-            document.getElementById('level').textContent = level;
-        }
-        
-        // Update score display
-        document.getElementById('score').textContent = score;
-        
-        requestAnimationFrame(gameLoop);
-    }
-    
-    function gameOver() {
-        gameRunning = false;
-        
-        // Check for high score
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('bradsSurfHighScore', highScore);
-            document.getElementById('highScore').textContent = highScore;
-            document.getElementById('newRecord').style.display = 'block';
-        } else {
-            document.getElementById('newRecord').style.display = 'none';
-        }
-        
-        document.getElementById('finalScore').textContent = `Your Score: ${score}`;
-        document.getElementById('gameOver').style.display = 'block';
-    }
-    
-    function restartGame() {
-        gameRunning = true;
-        score = 0;
-        level = 1;
-        player.x = 100;
-        player.y = canvas.height / 2;
-        
-        waves = [];
-        collectibles = [];
-        obstacles = [];
-        particles = [];
-        
-        document.getElementById('score').textContent = score;
-        document.getElementById('level').textContent = level;
-        document.getElementById('gameOver').style.display = 'none';
-        
-        gameLoop();
-    }
-    
-    // Start the game
-    gameLoop();
-</script>
-```
 
-</body>
-</html>
+    // Game logic inspired by Wind Waker's ocean exploration
+    class OceanAdventure {
+        constructor() {
+            this.canvas = document.getElementById('gameCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.score = 0;
+            this.treasureCount = 0;
+            
+            // Player boat
+            this.player = {
+                x: 300,
+                y: 200,
+                size: 30,
+                speed: 4,
+                angle: 0
+            };
+            
+            // Treasures and obstacles
+            this.treasures = [];
+            this.waves = [];
+            this.clouds = [];
+            
+            this.init();
+            this.setupKeyboardControls();
+        }
+        
+        init() {
+            // Create initial treasures
+            for (let i = 0; i < 8; i++) {
+                this.createTreasure();
+            }
+            
+            // Create waves
+            for (let i = 0; i < 12; i++) {
+                this.waves.push({
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    size: Math.random() * 20 + 10,
+                    speed: Math.random() * 0.5 + 0.2,
+                    angle: Math.random() * Math.PI * 2
+                });
+            }
+            
+            // Create clouds
+            for (let i = 0; i < 6; i++) {
+                this.clouds.push({
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * 100 + 20,
+                    size: Math.random() * 40 + 20,
+                    speed: Math.random() * 0.3 + 0.1
+                });
+            }
+            
+            this.gameLoop();
+        }
+        
+        setupKeyboardControls() {
+            document.addEventListener('keydown', (e) => {
+                switch(e.key.toLowerCase()) {
+                    case 'w':
+                    case 'arrowup':
+                        this.movePlayer('up');
+                        e.preventDefault();
+                        break;
+                    case 's':
+                    case 'arrowdown':
+                        this.movePlayer('down');
+                        e.preventDefault();
+                        break;
+                    case 'a':
+                    case 'arrowleft':
+                        this.movePlayer('left');
+                        e.preventDefault();
+                        break;
+                    case 'd':
+                    case 'arrowright':
+                        this.movePlayer('right');
+                        e.preventDefault();
+                        break;
+                }
+            });
+        }
+        
+        createTreasure() {
+            this.treasures.push({
+                x: Math.random() * (this.canvas.width - 40) + 20,
+                y: Math.random() * (this.canvas.height - 40) + 20,
+                size: 25,
+                collected: false,
+                sparkle: Math.random() * Math.PI * 2
+            });
+        }
+        
+        movePlayer(direction) {
+            const speed = this.player.speed;
+            
+            switch(direction) {
+                case 'up':
+                    this.player.y = Math.max(this.player.size/2, this.player.y - speed);
+                    this.player.angle = -Math.PI/2;
+                    break;
+                case 'down':
+                    this.player.y = Math.min(this.canvas.height - this.player.size/2, this.player.y + speed);
+                    this.player.angle = Math.PI/2;
+                    break;
+                case 'left':
+                    this.player.x = Math.max(this.player.size/2, this.player.x - speed);
+                    this.player.angle = Math.PI;
+                    break;
+                case 'right':
+                    this.player.x = Math.min(this.canvas.width - this.player.size/2, this.player.x + speed);
+                    this.player.angle = 0;
+                    break;
+            }
+        }
+        
+        update() {
+            // Update waves
+            this.waves.forEach(wave => {
+                wave.angle += wave.speed;
+                wave.x += Math.cos(wave.angle) * 0.5;
+                wave.y += Math.sin(wave.angle) * 0.3;
+                
+                // Wrap around screen
+                if (wave.x > this.canvas.width + 50) wave.x = -50;
+                if (wave.x < -50) wave.x = this.canvas.width + 50;
+                if (wave.y > this.canvas.height + 50) wave.y = -50;
+                if (wave.y < -50) wave.y = this.canvas.height + 50;
+            });
+            
+            // Update clouds
+            this.clouds.forEach(cloud => {
+                cloud.x += cloud.speed;
+                if (cloud.x > this.canvas.width + cloud.size) {
+                    cloud.x = -cloud.size;
+                }
+            });
+            
+            // Update treasure sparkles
+            this.treasures.forEach(treasure => {
+                treasure.sparkle += 0.1;
+            });
+            
+            // Check collisions
+            this.checkCollisions();
+        }
+        
+        checkCollisions() {
+            this.treasures.forEach((treasure, index) => {
+                if (!treasure.collected) {
+                    const dx = this.player.x - treasure.x;
+                    const dy = this.player.y - treasure.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < this.player.size/2 + treasure.size/2) {
+                        treasure.collected = true;
+                        this.score += 100;
+                        this.treasureCount++;
+                        this.updateScoreDisplay();
+                        
+                        // Create new treasure
+                        setTimeout(() => {
+                            this.createTreasure();
+                        }, 1000);
+                    }
+                }
+            });
+        }
+        
+        draw() {
+            // Clear canvas with ocean gradient
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#4682B4');
+            gradient.addColorStop(1, '#191970');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Draw clouds
+            this.clouds.forEach(cloud => {
+                this.ctx.save();
+                this.ctx.globalAlpha = 0.8;
+                this.ctx.fillStyle = 'white';
+                this.ctx.beginPath();
+                this.ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
+                this.ctx.arc(cloud.x + cloud.size * 0.6, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
+                this.ctx.arc(cloud.x - cloud.size * 0.6, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.restore();
+            });
+            
+            // Draw waves
+            this.waves.forEach(wave => {
+                this.ctx.save();
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.fillStyle = 'white';
+                this.ctx.beginPath();
+                this.ctx.ellipse(wave.x, wave.y, wave.size, wave.size/2, wave.angle, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.restore();
+            });
+            
+            // Draw treasures
+            this.treasures.forEach(treasure => {
+                if (!treasure.collected) {
+                    this.ctx.save();
+                    this.ctx.translate(treasure.x, treasure.y);
+                    
+                    // Sparkle effect
+                    this.ctx.save();
+                    this.ctx.globalAlpha = 0.7 + Math.sin(treasure.sparkle) * 0.3;
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.strokeStyle = '#FFA500';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, treasure.size/2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+                    this.ctx.restore();
+                    
+                    // Treasure chest details
+                    this.ctx.fillStyle = '#8B4513';
+                    this.ctx.fillRect(-treasure.size/3, -treasure.size/4, treasure.size*2/3, treasure.size/2);
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.fillRect(-treasure.size/4, -treasure.size/6, treasure.size/2, treasure.size/8);
+                    
+                    this.ctx.restore();
+                }
+            });
+            
+            // Draw player boat
+            this.ctx.save();
+            this.ctx.translate(this.player.x, this.player.y);
+            this.ctx.rotate(this.player.angle);
+            
+            // Boat hull
+            this.ctx.fillStyle = '#8B4513';
+            this.ctx.beginPath();
+            this.ctx.ellipse(0, 0, this.player.size/2, this.player.size/3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Boat details
+            this.ctx.strokeStyle = '#654321';
+            this.ctx.lineWidth = 2;
+            this.ctx.
+```
