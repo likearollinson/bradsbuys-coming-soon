@@ -1,787 +1,751 @@
-hidden;
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brad's Buys - Your Ultimate Shopping Destination</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 50px;
-            opacity: 0.8;
-            animation: float-cloud 20s infinite linear;
+```
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-attachment: fixed;
+        color: #333;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+    
+    /* Animated background elements */
+    .bg-particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float-particle 15s infinite linear;
+    }
+    
+    .particle:nth-child(1) { width: 8px; height: 8px; top: 20%; left: -50px; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 12px; height: 12px; top: 40%; left: -60px; animation-delay: -3s; }
+    .particle:nth-child(3) { width: 6px; height: 6px; top: 60%; left: -40px; animation-delay: -6s; }
+    .particle:nth-child(4) { width: 10px; height: 10px; top: 80%; left: -55px; animation-delay: -9s; }
+    
+    @keyframes float-particle {
+        0% { transform: translateX(-100px) translateY(0px); }
+        100% { transform: translateX(calc(100vw + 100px)) translateY(-100px); }
+    }
+    
+    /* Header */
+    header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    }
+    
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .logo-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.5rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+    }
+    
+    .nav-links a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .nav-links a:hover {
+        color: #667eea;
+    }
+    
+    .cta-button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Hero Section */
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 2rem;
+        margin-top: 80px;
+    }
+    
+    .hero-content {
+        max-width: 800px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 4rem 3rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        color: #666;
+        margin-bottom: 2rem;
+        font-weight: 300;
+    }
+    
+    .hero-description {
+        font-size: 1.2rem;
+        color: #555;
+        margin-bottom: 3rem;
+        line-height: 1.8;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 16px 32px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: transparent;
+        color: #667eea;
+        padding: 16px 32px;
+        border: 2px solid #667eea;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-3px);
+    }
+    
+    /* Features Section */
+    .features {
+        padding: 6rem 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .section-title {
+        text-align: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        margin-bottom: 3rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 3rem;
+    }
+    
+    .feature-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 25px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 2rem;
+        color: white;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-description {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    /* Stats Section */
+    .stats {
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    }
+    
+    .stats-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        text-align: center;
+    }
+    
+    .stat-item {
+        padding: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 1.2rem;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    /* Footer */
+    footer {
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 3rem 2rem 2rem;
+        text-align: center;
+    }
+    
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .footer-links a {
+        color: white;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .footer-links a:hover {
+        color: #667eea;
+    }
+    
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .social-link {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .social-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .navbar {
+            flex-direction: column;
+            gap: 1rem;
         }
-
-        .cloud::before,
-        .cloud::after {
-            content: '';
-            position: absolute;
-            background: white;
-            border-radius: 50px;
+        
+        .nav-links {
+            gap: 1rem;
         }
-
-        .cloud1 {
-            width: 80px;
-            height: 40px;
-            top: 20%;
-            left: -100px;
-            animation-duration: 25s;
-        }
-
-        .cloud1::before {
-            width: 50px;
-            height: 50px;
-            top: -25px;
-            left: 10px;
-        }
-
-        .cloud1::after {
-            width: 60px;
-            height: 40px;
-            top: -15px;
-            right: 10px;
-        }
-
-        .cloud2 {
-            width: 60px;
-            height: 30px;
-            top: 40%;
-            left: -80px;
-            animation-duration: 30s;
-            animation-delay: -10s;
-        }
-
-        .cloud2::before {
-            width: 40px;
-            height: 40px;
-            top: -20px;
-            left: 5px;
-        }
-
-        .cloud2::after {
-            width: 50px;
-            height: 30px;
-            top: -10px;
-            right: 5px;
-        }
-
-        @keyframes float-cloud {
-            0% { transform: translateX(-100px); }
-            100% { transform: translateX(calc(100vw + 100px)); }
-        }
-
-        /* Header */
-        header {
-            background: linear-gradient(135deg, #FF6B9D, #FFE66D);
-            padding: 2rem;
-            text-align: center;
-            border-bottom: 5px solid #FF8E53;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            position: relative;
-        }
-
-        .logo {
-            display: inline-block;
-            position: relative;
-        }
-
-        .logo-icon {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(45deg, #FF8E53, #FF6B9D);
-            border-radius: 50%;
-            border: 5px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            animation: bob 2s ease-in-out infinite;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        .logo-icon::before {
-            content: "â­";
-            font-size: 2.5rem;
-            animation: sparkle 3s ease-in-out infinite;
-        }
-
-        @keyframes bob {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes sparkle {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
-        }
-
-        h1 {
-            font-size: 4rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 3px 3px 0px #2F4F4F, 6px 6px 10px rgba(0,0,0,0.3);
-            margin-bottom: 0.5rem;
-            letter-spacing: 2px;
-        }
-
-        .tagline {
-            font-size: 1.5rem;
-            color: white;
-            text-shadow: 2px 2px 0px #2F4F4F;
-            font-weight: bold;
-        }
-
-        /* Navigation */
-        nav {
-            background: #4ECDC4;
-            padding: 1rem;
-            text-align: center;
-            border-bottom: 3px solid #45B7B8;
-        }
-
-        .nav-button {
-            background: linear-gradient(135deg, #FFE66D, #FF8E53);
-            color: #2F4F4F;
-            border: 3px solid white;
-            padding: 12px 24px;
-            margin: 0 10px;
-            border-radius: 25px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .nav-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-            background: linear-gradient(135deg, #FF8E53, #FFE66D);
-        }
-
-        .nav-button.active {
-            background: linear-gradient(135deg, #FF6B9D, #FFE66D);
-            transform: translateY(-2px);
-        }
-
-        /* Main content */
-        main {
-            padding: 3rem 2rem;
-            text-align: center;
-        }
-
-        .content-section {
-            display: none;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        .hero-content {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 30px;
-            padding: 3rem;
-            margin-bottom: 3rem;
-            border: 4px solid #4ECDC4;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
+        
         .hero-title {
-            font-size: 3rem;
-            color: #2F4F4F;
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 0px #4ECDC4;
+            font-size: 2.5rem;
         }
-
-        .hero-description {
-            font-size: 1.3rem;
-            line-height: 1.6;
-            color: #2F4F4F;
-            margin-bottom: 2rem;
+        
+        .hero-content {
+            padding: 2rem 1.5rem;
         }
-
-        /* Game Section */
-        .game-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 4px solid #FF6B9D;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            margin: 2rem auto;
-            max-width: 800px;
-        }
-
-        .game-canvas {
-            border: 4px solid #4ECDC4;
-            border-radius: 15px;
-            background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
-            display: block;
-            margin: 0 auto;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-        }
-
-        .game-controls {
-            margin-top: 1rem;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .control-button {
-            background: linear-gradient(135deg, #4ECDC4, #45B7B8);
-            color: white;
-            border: 3px solid white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .control-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
-
-        .control-button:active {
-            transform: translateY(0px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 25px;
-            padding: 2rem;
-            border: 4px solid #FFE66D;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 230, 109, 0.3), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s ease;
-            opacity: 0;
-        }
-
-        .feature-card:hover::before {
-            animation: shine 0.5s ease-in-out;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            border-color: #FF6B9D;
-        }
-
-        .feature-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-        }
-
-        .feature-title {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #2F4F4F;
-            text-shadow: 1px 1px 0px #4ECDC4;
-        }
-
-        .feature-description {
-            color: #2F4F4F;
-            line-height: 1.5;
-            font-size: 1.1rem;
-        }
-
-        /* Footer */
-        footer {
-            background: linear-gradient(135deg, #2F4F4F, #4ECDC4);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            margin-top: 3rem;
-            border-top: 5px solid #FF6B9D;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .social-link {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #FF6B9D, #FFE66D);
-            border-radius: 50%;
-            border: 3px solid white;
-            display: flex;
+        
+        .hero-buttons {
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #2F4F4F;
-            font-size: 1.8rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+    
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Easter Egg Styles */
+    .easter-egg {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #ffd700, #ff6b35);
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1001;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: pulse-glow 3s infinite;
+        opacity: 0.8;
+    }
+    
+    .easter-egg:hover {
+        transform: scale(1.2) rotate(360deg);
+        opacity: 1;
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+    }
+    
+    .easter-egg-icon {
+        font-size: 1.8rem;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 0 0 0 rgba(255, 215, 0, 0.7); 
+        }
+        50% { 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 0 0 10px rgba(255, 215, 0, 0); 
+        }
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .easter-egg-tooltip {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+    
+    .easter-egg:hover .easter-egg-tooltip {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .easter-egg-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        right: 20px;
+        border: 5px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.9);
+    }
+</style>
+```
 
-        .social-link:hover {
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
-        }
-
-        /* Score display */
-        .score-display {
-            background: linear-gradient(135deg, #FFE66D, #FF8E53);
-            border: 3px solid white;
-            border-radius: 20px;
-            padding: 10px 20px;
-            margin: 1rem;
-            display: inline-block;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #2F4F4F;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .game-canvas {
-                width: 100%;
-                max-width: 400px;
-                height: 300px;
-            }
-            
-            .nav-button {
-                margin: 5px;
-                padding: 8px 16px;
-                font-size: 1rem;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Animated clouds -->
-        <div class="clouds">
-            <div class="cloud cloud1"></div>
-            <div class="cloud cloud2"></div>
-        </div>
-
-        <!-- Header -->
-        <header>
-            <div class="logo">
-                <div class="logo-icon"></div>
-                <h1>NicoTEEN Dreams</h1>
-                <p class="tagline">Con Ife - Adventure Awaits!</p>
-            </div>
-        </header>
-
-        <!-- Navigation -->
-        <nav>
-            <button class="nav-button active" onclick="showSection('home')">ðŸ  Home</button>
-            <button class="nav-button" onclick="showSection('game')">ðŸŽ® Ocean Adventure</button>
-            <button class="nav-button" onclick="showSection('features')">âœ¨ Features</button>
-            <button class="nav-button" onclick="showSection('about')">ðŸ“– About</button>
-        </nav>
-
-        <!-- Main Content -->
-        <main>
-            <!-- Home Section -->
-            <div id="home" class="content-section active">
-                <div class="hero-content">
-                    <h2 class="hero-title">Welcome to Your Adventure!</h2>
-                    <p class="hero-description">
-                        Set sail on an epic journey through colorful seas and magical islands! 
-                        Experience the charm of cel-shaded adventures with smooth sailing, 
-                        treasure hunting, and endless exploration in our Wind Waker-inspired world.
-                    </p>
-                    <button class="nav-button" onclick="showSection('game')">ðŸš¢ Start Your Journey!</button>
-                </div>
-            </div>
-
-            <!-- Game Section -->
-            <div id="game" class="content-section">
-                <div class="game-container">
-                    <h2 class="hero-title">Ocean Adventure</h2>
-                    <div class="score-display">â­ Score: <span id="score">0</span> | ðŸ’° Treasures: <span id="treasures">0</span></div>
-                    <canvas id="gameCanvas" class="game-canvas" width="600" height="400"></canvas>
-                    <div class="game-controls">
-                        <button class="control-button" onclick="game.movePlayer('up')">â¬†ï¸ Up</button>
-                        <button class="control-button" onclick="game.movePlayer('down')">â¬‡ï¸ Down</button>
-                        <button class="control-button" onclick="game.movePlayer('left')">â¬…ï¸ Left</button>
-                        <button class="control-button" onclick="game.movePlayer('right')">âž¡ï¸ Right</button>
-                        <button class="control-button" onclick="game.restart()">ðŸ”„ Restart</button>
-                    </div>
-                    <p style="margin-top: 1rem; color: #2F4F4F;">
-                        ðŸš¢ Sail your boat to collect treasures! Use WASD or arrow keys to move, or tap the buttons above!
-                    </p>
-                </div>
-            </div>
-
-            <!-- Features Section -->
-            <div id="features" class="content-section">
-                <div class="features">
-                    <div class="feature-card">
-                        <span class="feature-icon">ðŸŒŠ</span>
-                        <h3 class="feature-title">Cel-Shaded Beauty</h3>
-                        <p class="feature-description">
-                            Experience the timeless art style of Wind Waker with vibrant colors, 
-                            smooth animations, and a cartoon aesthetic that never gets old.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">â›µ</span>
-                        <h3 class="feature-title">Ocean Exploration</h3>
-                        <p class="feature-description">
-                            Sail across endless seas, discover hidden treasures, and explore 
-                            mysterious islands in your trusty sailboat adventure.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">ðŸŽ¨</span>
-                        <h3 class="feature-title">Colorful World</h3>
-                        <p class="feature-description">
-                            Immerse yourself in a world filled with bright blues, sunny yellows, 
-                            and magical gradients that bring joy to every moment.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- About Section -->
-            <div id="about" class="content-section">
-                <div class="hero-content">
-                    <h2 class="hero-title">About NicoTEEN Dreams</h2>
-                    <p class="hero-description">
-                        Inspired by the legendary Wind Waker's art style, NicoTEEN Dreams brings 
-                        you a nostalgic yet fresh adventure experience. With cel-shaded graphics, 
-                        vibrant colors, and smooth animations, we capture the magic of classic 
-                        adventure games while creating something entirely new.
-                    </p>
-                    <p class="hero-description">
-                        Join Link... er, join our hero on an unforgettable journey across the Great Sea!
-                    </p>
-                </div>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer>
-            <div class="social-links">
-                <a href="#" class="social-link">ðŸ´â€â˜ ï¸</a>
-                <a href="#" class="social-link">âš“</a>
-                <a href="#" class="social-link">ðŸ—ºï¸</a>
-                <a href="#" class="social-link">ðŸ’Œ</a>
-            </div>
-            <p>&copy; 2025 NicoTEEN Dreams. All adventures reserved. ðŸŒŠâ­</p>
-        </footer>
+    <div class="bg-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
     </div>
 
-    <script>
-        // Navigation functionality
-        function showSection(sectionId) {
-            // Hide all sections
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(section => section.classList.remove('active'));
-            
-            // Show selected section
-            document.getElementById(sectionId).classList.add('active');
-            
-            // Update nav buttons
-            const buttons = document.querySelectorAll('.nav-button');
-            buttons.forEach(button => button.classList.remove('active'));
-            event.target.classList.add('active');
-        }
+```
+<header>
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">🛒</div>
+            Brad's Buys
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <a href="#shop" class="cta-button">Start Shopping</a>
+    </nav>
+</header>
 
-        // Game logic inspired by Wind Waker's ocean exploration
-        class OceanAdventure {
-            constructor() {
-                this.canvas = document.getElementById('gameCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.score = 0;
-                this.treasureCount = 0;
-                
-                // Player boat
-                this.player = {
-                    x: 300,
-                    y: 200,
-                    size: 30,
-                    speed: 4,
-                    angle: 0
-                };
-                
-                // Treasures and obstacles
-                this.treasures = [];
-                this.waves = [];
-                this.clouds = [];
-                
-                this.init();
+<section id="home" class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Brad's Buys</h1>
+        <p class="hero-subtitle">Your Ultimate Shopping Destination</p>
+        <p class="hero-description">
+            Discover amazing deals, curated collections, and unbeatable prices on everything you need. 
+            From tech gadgets to home essentials, Brad handpicks the best products just for you.
+        </p>
+        <div class="hero-buttons">
+            <a href="#shop" class="btn-primary">🛍️ Shop Now</a>
+            <a href="#features" class="btn-secondary">✨ Learn More</a>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="features">
+    <div class="features-container">
+        <h2 class="section-title">Why Choose Brad's Buys?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💎</div>
+                <h3 class="feature-title">Curated Selection</h3>
+                <p class="feature-description">
+                    Every product is personally tested and approved by Brad. Only the best makes it to our store.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Lightning Fast Delivery</h3>
+                <p class="feature-description">
+                    Get your purchases delivered in record time with our premium shipping partners.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Unbeatable Deals</h3>
+                <p class="feature-description">
+                    We negotiate the best prices so you don't have to. Save money on every purchase.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title">Buyer Protection</h3>
+                <p class="feature-description">
+                    Shop with confidence knowing every purchase is backed by our satisfaction guarantee.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">Tech First</h3>
+                <p class="feature-description">
+                    Stay ahead with the latest gadgets, smart home devices, and cutting-edge technology.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌟</div>
+                <h3 class="feature-title">5-Star Service</h3>
+                <p class="feature-description">
+                    Our customer support team is here 24/7 to ensure you have the best shopping experience.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-number">50K+</div>
+            <div class="stat-label">Happy Customers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Products Sold</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">99.8%</div>
+            <div class="stat-label">Satisfaction Rate</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Customer Support</div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="#privacy">Privacy Policy</a>
+            <a href="#terms">Terms of Service</a>
+            <a href="#returns">Returns</a>
+            <a href="#shipping">Shipping Info</a>
+            <a href="#contact">Contact Us</a>
+        </div>
+        <div class="social-links">
+            <a href="#" class="social-link">📘</a>
+            <a href="#" class="social-link">📷</a>
+            <a href="#" class="social-link">🐦</a>
+            <a href="#" class="social-link">📧</a>
+        </div>
+        <p>&copy; 2025 Brad's Buys. All rights reserved. | Made with ❤️ for smart shoppers</p>
+    </div>
+</footer>
+
+<!-- Easter Egg -->
+<div class="easter-egg" onclick="window.open('https://kanye.world', '_blank')">
+    <div class="easter-egg-tooltip">🌊 Ye's World</div>
+    <div class="easter-egg-icon">🌊</div>
+</div>
+
+<script>
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
-            
-            init() {
-                // Create initial treasures
-                for (let i = 0; i < 8; i++) {
-                    this.createTreasure();
+        });
+    });
+
+    // Add scroll effect to navbar
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(255, 255, 255, 0.98)';
+        } else {
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+        }
+    });
+
+    // Animate stats when they come into view
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumber = entry.target.querySelector('.stat-number');
+                const finalNumber = statNumber.textContent;
+                const isPercentage = finalNumber.includes('%');
+                const isTime = finalNumber.includes('/');
+                
+                if (!isPercentage && !isTime) {
+                    const numericValue = parseInt(finalNumber.replace(/[^\d]/g, ''));
+                    animateNumber(statNumber, 0, numericValue, finalNumber);
                 }
-                
-                // Create waves
-                for (let i = 0; i < 12; i++) {
-                    this.waves.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * this.canvas.height,
-                        size: Math.random() * 20 + 10,
-                        speed: Math.random() * 0.5 + 0.2,
-                        angle: Math.random() * Math.PI * 2
-                    });
-                }
-                
-                // Create clouds
-                for (let i = 0; i < 6; i++) {
-                    this.clouds.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * 100 + 20,
-                        size: Math.random() * 40 + 20,
-                        speed: Math.random() * 0.3 + 0.1
-                    });
-                }
-                
-                this.gameLoop();
             }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.stat-item').forEach(stat => {
+        observer.observe(stat);
+    });
+
+    // Add Konami Code Easter Egg
+    let konamiCode = [];
+    const konamiSequence = [
+        'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+        'KeyB', 'KeyA'
+    ];
+
+    document.addEventListener('keydown', (e) => {
+        konamiCode.push(e.code);
+        
+        // Keep only the last 10 keys
+        if (konamiCode.length > 10) {
+            konamiCode.shift();
+        }
+        
+        // Check if the sequence matches
+        if (konamiCode.length === 10 && 
+            konamiCode.every((key, index) => key === konamiSequence[index])) {
             
-            createTreasure() {
-                this.treasures.push({
-                    x: Math.random() * (this.canvas.width - 40) + 20,
-                    y: Math.random() * (this.canvas.height - 40) + 20,
-                    size: 25,
-                    collected: false,
-                    sparkle: Math.random() * Math.PI * 2
-                });
+            // Trigger special effect and redirect
+            document.body.style.animation = 'rainbow 1s infinite';
+            
+            setTimeout(() => {
+                window.open('https://kanye.world', '_blank');
+                document.body.style.animation = '';
+            }, 2000);
+            
+            konamiCode = []; // Reset
+        }
+    });
+
+    // Rainbow animation for Konami code
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            25% { filter: hue-rotate(90deg); }
+            50% { filter: hue-rotate(180deg); }
+            75% { filter: hue-rotate(270deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    function animateNumber(element, start, end, originalText) {
+        const duration = 2000;
+        const startTime = performance.now();
+        const suffix = originalText.replace(/[\d]/g, '');
+
+        function updateNumber(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = Math.floor(start + (end - start) * progress);
+            
+            element.textContent = current.toLocaleString() + suffix;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateNumber);
             }
-            
-            movePlayer(direction) {
-                const speed = this.player.speed;
-                
-                switch(direction) {
-                    case 'up':
-                        this.player.y = Math.max(this.player.size/2, this.player.y - speed);
-                        this.player.angle = -Math.PI/2;
-                        break;
-                    case 'down':
-                        this.player.y = Math.min(this.canvas.height - this.player.size/2, this.player.y + speed);
-                        this.player.angle = Math.PI/2;
-                        break;
-                    case 'left':
-                        this.player.x = Math.max(this.player.size/2, this.player.x - speed);
-                        this.player.angle = Math.PI;
-                        break;
-                    case 'right':
-                        this.player.x = Math.min(this.canvas.width - this.player.size/2, this.player.x + speed);
-                        this.player.angle = 0;
-                        break;
-                }
-            }
-            
-            update() {
-                // Update waves
-                this.waves.forEach(wave => {
-                    wave.angle += wave.speed;
-                    wave.x += Math.cos(wave.angle) * 0.5;
-                    wave.y += Math.sin(wave.angle) * 0.3;
-                    
-                    // Wrap around screen
-                    if (wave.x > this.canvas.width + 50) wave.x = -50;
-                    if (wave.x < -50) wave.x = this.canvas.width + 50;
-                    if (wave.y > this.canvas.height + 50) wave.y = -50;
-                    if (wave.y < -50) wave.y = this.canvas.height + 50;
-                });
-                
-                // Update clouds
-                this.clouds.forEach(cloud => {
-                    cloud.x += cloud.speed;
-                    if (cloud.x > this.canvas.width + cloud.size) {
-                        cloud.x = -cloud.size;
-                    }
-                });
-                
-                // Update treasure sparkles
-                this.treasures.forEach(treasure => {
-                    treasure.sparkle += 0.1;
-                });
-                
-                // Check collisions
-                this.checkCollisions();
-            }
-            
-            checkCollisions() {
-                this.treasures.forEach((treasure, index) => {
-                    if (!treasure.collected) {
-                        const dx = this.player.x - treasure.x;
-                        const dy = this.player.y - treasure.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < this.player.size/2 + treasure.size/2) {
-                            treasure.collected = true;
-                            this.score += 100;
-                            this.treasureCount++;
-                            this.updateScoreDisplay();
-                            
-                            // Create new treasure
-                            setTimeout(() => {
-                                this.createTreasure();
-                            }, 1000);
-                        }
-                    }
-                });
-            }
-            
-            draw() {
-                // Clear canvas with ocean gradient
-                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-                gradient.addColorStop(0, '#87CEEB');
-                gradient.addColorStop(0.7, '#4682B4');
-                gradient.addColorStop(1, '#191970');
-                this.ctx.fillStyle = gradient;
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                // Draw clouds
-                this.clouds.forEach(cloud => {
-                    this.ctx.save();
-                    this.ctx.globalAlpha = 0.8;
-                    this.ctx.fillStyle = 'white';
-                    this.ctx.beginPath();
-                    this.ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
-                    this.ctx.arc(cloud.x + cloud.size * 0.6, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
-                    this.ctx.arc(cloud.x - cloud.size * 0.6, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.restore();
-                });
-                
-                // Draw waves
-                this.waves.forEach(wave => {
-                    this.ctx.save();
-                    this.ctx.globalAlpha = 0.3;
-                    this.ctx.fillStyle = 'white';
-                    this.ctx.beginPath();
-                    this.ctx.ellipse(wave.x, wave.y, wave.size, wave.size/2, wave.angle, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.restore();
-                });
-                
-                // Draw treasures
-                this.treasures.forEach(treasure => {
-                    if (!treasure.collected) {
-                        this.ctx.save();
-                        this.ctx.translate(treasure.x, treasure.y);
-                        
-                        // Sparkle effect
-                        this.ctx.save();
-                        this.ctx.globalAlpha = 0.7 + Math.sin(treasure.sparkle) * 0.3;
-                        this.ctx.fillStyle = '#FFD700';
-                        this.ctx.strokeStyle = '#FFA500';
-                        this.ctx.lineWidth = 3;
-                        this.ctx.beginPath();
-                        this.ctx.arc(0, 0, treasure.size/2, 0, Math.PI * 2);
-                        this.ctx.fill();
-                        this.ctx.stroke();
-                        this.ctx.restore();
-                        
-                        // Treasure chest details
-                        this.ctx.fillStyle = '#8B4513';
-                        this.ctx.fillRect(-treasure.size/3, -treasure.size/4, treasure.size*2/3, treasure.size/2);
-                        this.ctx.fillStyle = '#FFD700';
-                        this.ctx.fillRect(-treasure.size/4, -treasure.size/6, treasure.size/2, treasure.size/8);
-                        
-                        this.ctx.restore();
-                    }
-                });
-                
-                // Draw player boat
-                this.ctx.save();
-                this.ctx.translate(this.player.x, this.player.y);
-                this.ctx.rotate(this.player.angle);
-                
-                // Boat hull
-                this.ctx.fillStyle = '#8B4513';
-                this.ctx.beginPath();
-                this.ctx.ellipse(0, 0, this.player.size/2, this.player.size/3, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-                
-                // Boat details
-                this.ctx.strokeStyle = '#654321';
-                this.ctx.lineWidth = 2;
-                this.ctx.stroke();
-                
-                // Sail
-                this.ctx.fillStyle = 'white';
-                this.ctx.beginPath();
-                this.ctx.moveTo(-5, -this.player.size/2);
-                this.ctx.lineTo(-5, this.player.size/2);
-                this.ctx.lineTo(this.player.size/3, this.player.size/4);
-                this.ctx.lineTo(this.player.size/3, -this.player.size/4);
-                this.ctx.closePath();
-                this.ctx.fill();
-                this.ctx.strokeStyle = '#ddd';
-                this.ctx.stroke();
-                
-                // Mast
-                this.ctx.strokeStyle = '#8B4513';
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.moveTo(-5, -this.player.size/2);
-                this.ctx.lineTo(-5, this.player.size/2);
-                this.ctx.stroke();
-                
-                this.ctx.restore();
-            }
-            
-            updateScoreDisplay() {
-                document.getElementById('score').textContent = this.score;
-                document.getElementById('treasures').textContent = this.treasureCount;
-            }
-            
-            restart() {
-                this
-    </script>
+        }
+        
+        requestAnimationFrame(updateNumber);
+    }
+</script>
+```
+
 </body>
 </html>
