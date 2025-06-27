@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>NicoTEEN Dreams</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -53,8 +53,9 @@
             margin-bottom: 2rem;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
         }
-        #start-button {
+        .action-button {
             padding: 1rem 2rem;
+            margin: 0.5rem;
             font-size: 1.5rem;
             color: #000;
             background-color: #fff;
@@ -64,7 +65,7 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        #start-button:hover {
+        .action-button:hover {
             background-color: #000;
             color: #fff;
             border-color: #fff;
@@ -97,32 +98,149 @@
             transition: opacity 0.5s;
             pointer-events: none;
         }
+
+        /* How to Play Modal */
+        #how-to-play-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        #how-to-play-content {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: left;
+            border: 1px solid #444;
+        }
+        #how-to-play-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #how-to-play-content p, #how-to-play-content ul {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        #how-to-play-content ul {
+            list-style-position: inside;
+        }
+        #how-to-play-content strong {
+            color: #ffff00;
+        }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none; /* Allows clicks to go through the container */
+        }
+        .mobile-btn {
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            color: white;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: all; /* Buttons are clickable */
+        }
+        .mobile-btn:active {
+             background-color: rgba(255, 255, 255, 0.6);
+        }
+        #d-pad {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+        #move-forward { position: absolute; top: 0; left: 55px; }
+        #move-backward { position: absolute; bottom: 0; left: 55px; }
+        #move-left { position: absolute; top: 55px; left: 0; }
+        #move-right { position: absolute; top: 55px; right: 0; }
+        #jump-button-container {
+            display: flex;
+            align-items: flex-end;
+        }
+        /* Hide mobile controls on desktop */
+        @media (min-width: 769px) {
+            #mobile-controls {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Intro screen with cover art -->
     <div id="intro-screen" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://storage.googleapis.com/gemini-prod-us-west1-assets/e69c3a3344692e85_4F01559D-4F72-48DD-B7BD-CD982912C63A.jpeg');">
         <h1>NicoTEEN dreams</h1>
         <h2>ConYe</h2>
         <p>by Brad</p>
-        <button id="start-button">Start Game</button>
+        <div>
+            <button id="start-button" class="action-button">Start Game</button>
+            <button id="how-to-play-button" class="action-button">How to Play</button>
+        </div>
     </div>
 
-    <!-- Heads-Up Display -->
+    <div id="how-to-play-modal">
+        <div id="how-to-play-content">
+            <h3>How to Play</h3>
+            <p><strong>Objective:</strong> Race against the clock to find and collect the glowing <strong>yellow cylinders</strong>. Each one you collect adds <strong>100 points</strong> to your score and gives you <strong>15 extra seconds</strong>.</p>
+            <h4>Controls (Desktop)</h4>
+            <ul>
+                <li><strong>Move:</strong> W, A, S, D or Arrow Keys</li>
+                <li><strong>Jump (Ollie):</strong> Space Bar</li>
+            </ul>
+             <h4>Controls (Mobile)</h4>
+            <ul>
+                <li><strong>Move:</strong> Use the directional-pad in the bottom-left corner.</li>
+                <li><strong>Jump (Ollie):</strong> Use the 'JUMP' button in the bottom-right corner.</li>
+            </ul>
+            <button id="close-modal-button" class="action-button" style="display: block; margin: 20px auto 0;">Got it!</button>
+        </div>
+    </div>
+
+
     <div id="hud">
         <div id="score">Score: 0</div>
         <div id="time">Time: 120</div>
     </div>
 
-    <!-- In-game messages -->
     <div id="message-box">New Objective!</div>
 
-    <!-- Game canvas -->
+    <div id="mobile-controls">
+        <div id="d-pad">
+            <button id="move-forward" class="mobile-btn">&#8593;</button>
+            <button id="move-backward" class="mobile-btn">&#8595;</button>
+            <button id="move-left" class="mobile-btn">&#8592;</button>
+            <button id="move-right" class="mobile-btn">&#8594;</button>
+        </div>
+        <div id="jump-button-container">
+            <button id="jump-button" class="mobile-btn">JUMP</button>
+        </div>
+    </div>
+
     <canvas id="game-canvas"></canvas>
 
-    <!-- Soundtrack -->
     <audio id="soundtrack" loop>
-        <source src="https://storage.googleapis.com/gemini-prod-us-west1-assets/e69c3a3344692e85_Triangle_Springs_3.mp4" type="video/mp4">
+        <source src="https://storage.googleapis.com/gemini-prod-us-west1-assets/e69c3a3344692e85_Triangle_Springs_3.mp4" type="audio/mp4">
         Your browser does not support the audio element.
     </audio>
 
@@ -134,6 +252,11 @@
         const scoreEl = document.getElementById('score');
         const timeEl = document.getElementById('time');
         const messageBox = document.getElementById('message-box');
+
+        // How to Play elements
+        const howToPlayButton = document.getElementById('how-to-play-button');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const howToPlayModal = document.getElementById('how-to-play-modal');
 
         let scene, camera, renderer, world;
         let player = {
@@ -148,6 +271,7 @@
         let score = 0;
         let time = 120;
         let timerInterval;
+        let gameStarted = false;
 
         // --- Event Listeners ---
         startButton.addEventListener('click', () => {
@@ -156,16 +280,48 @@
                 introScreen.style.display = 'none';
                 init();
             }, 1000);
-
-            // Audio can only start after user interaction
             soundtrack.play().catch(error => console.error("Audio playback failed:", error));
+        });
+
+        howToPlayButton.addEventListener('click', () => {
+            howToPlayModal.style.display = 'flex';
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            howToPlayModal.style.display = 'none';
         });
 
         window.addEventListener('keydown', (e) => keys[e.code] = true);
         window.addEventListener('keyup', (e) => keys[e.code] = false);
 
+        // Mobile Control Listeners
+        function setupMobileControls() {
+            const controls = {
+                'move-forward': 'KeyW',
+                'move-backward': 'KeyS',
+                'move-left': 'KeyA',
+                'move-right': 'KeyD',
+                'jump-button': 'Space'
+            };
+
+            for (const [elementId, keyCode] of Object.entries(controls)) {
+                const button = document.getElementById(elementId);
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys[keyCode] = true;
+                }, { passive: false });
+                button.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys[keyCode] = false;
+                }, { passive: false });
+            }
+        }
+        setupMobileControls();
+
+
         // --- Initialization ---
         function init() {
+            gameStarted = true;
             // Physics World
             world = new CANNON.World();
             world.gravity.set(0, -50, 0); // Stronger gravity
@@ -188,14 +344,12 @@
             // Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
-
             const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
             directionalLight.position.set(50, 50, 50);
             directionalLight.castShadow = true;
             directionalLight.shadow.mapSize.width = 2048;
             directionalLight.shadow.mapSize.height = 2048;
             scene.add(directionalLight);
-
 
             // Create the world
             createGround();
@@ -213,7 +367,6 @@
                 }
             }, 1000);
 
-            // Start game loop
             animate();
         }
 
@@ -234,21 +387,17 @@
         }
 
         function createCity() {
-            // Create various ramps and blocks for a skatepark feel
             createBox(10, 20, 30, { x: 40, y: 10, z: 0 });
             createBox(10, 10, 10, { x: -30, y: 5, z: 20 });
             createRamp(20, 10, 20, { x: 0, y: 0, z: -50 }, {y: 0});
             createRamp(20, 15, 30, { x: -80, y: 0, z: 0 }, {y: Math.PI / 2});
             createRamp(20, 15, 30, { x: 80, y: 0, z: 0 }, {y: -Math.PI / 2});
-
-            // Some buildings
             for (let i = 0; i < 15; i++) {
                 const sizeX = Math.random() * 20 + 10;
                 const sizeZ = Math.random() * 20 + 10;
                 const height = Math.random() * 50 + 20;
                 const posX = (Math.random() - 0.5) * 400;
                 const posZ = (Math.random() - 0.5) * 400;
-                // Ensure buildings aren't in the central play area
                 if (Math.abs(posX) > 50 || Math.abs(posZ) > 50) {
                     createBox(sizeX, height, sizeZ, { x: posX, y: height / 2, z: posZ });
                 }
@@ -257,58 +406,58 @@
 
         // --- Player Creation ---
         function createPlayer() {
-            // Player character named "ConYe"
             const playerShape = new CANNON.Sphere(1.5);
             player.body = new CANNON.Body({
                 mass: 70,
                 position: new CANNON.Vec3(0, 10, 0),
                 shape: playerShape,
-                linearDamping: 0.5 // Simulates friction/air resistance
+                linearDamping: 0.5,
+                angularDamping: 1.0 // Prevent tipping
             });
+            player.body.angularFactor.set(0, 1, 0); // Only allow rotation around Y-axis
             world.addBody(player.body);
 
-            const playerGeometry = new THREE.CapsuleGeometry(1, 2, 4, 8);
+            const playerGeometry = new THREE.CapsuleGeometry(1.2, 2, 4, 8);
             const playerMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
             player.mesh = new THREE.Mesh(playerGeometry, playerMaterial);
             player.mesh.castShadow = true;
             scene.add(player.mesh);
             
-            // Listen for collisions to detect if grounded
             player.body.addEventListener("collide", (event) => {
-                 // Check if the collision normal is mostly pointing up.
-                if(event.contact.ni.y > 0.5){
-                    player.isGrounded = true;
-                }
+               const contactNormal = event.contact.ni;
+               if (contactNormal.y > 0.5) {
+                   player.isGrounded = true;
+               }
             });
         }
         
-        // --- Objective System (Crazy Taxi style) ---
+        // --- Objective System ---
         let currentObjective = null;
 
         function spawnObjective() {
             if (currentObjective) {
                 scene.remove(currentObjective.mesh);
+                // Also dispose of geometry and material if necessary to free up memory
             }
 
             const posX = (Math.random() - 0.5) * 150;
             const posZ = (Math.random() - 0.5) * 150;
 
             const objectiveGeometry = new THREE.CylinderGeometry(5, 5, 20, 32);
-            const objectiveMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.6 });
+            const objectiveMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 });
             const objectiveMesh = new THREE.Mesh(objectiveGeometry, objectiveMaterial);
             objectiveMesh.position.set(posX, 10, posZ);
 
             currentObjective = {
                 mesh: objectiveMesh,
                 position: new THREE.Vector3(posX, 10, posZ),
-                radius: 5
+                radius: 6 // slightly larger radius for easier collection
             };
             scene.add(objectiveMesh);
             showMessage("New Objective!");
         }
 
-
-        // --- Helper functions for creating objects ---
+        // --- Helper functions ---
         function createBox(width, height, depth, position, rotation = {x:0, y:0, z:0}) {
             const shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
             const body = new CANNON.Body({ mass: 0 });
@@ -329,22 +478,31 @@
         }
         
         function createRamp(width, height, depth, position, rotation) {
-            const shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
-            const body = new CANNON.Body({ mass: 0 });
-            // For ramps, we rotate the physics body
-            const angle = Math.atan2(height, depth);
-            body.addShape(shape, new CANNON.Vec3(), new CANNON.Quaternion().setFromAxisAngle(new CANNON.Vec3(1,0,0), angle));
-            body.position.set(position.x, position.y + height/2, position.z);
-            body.quaternion.setFromEuler(0, rotation.y, 0);
-            world.addBody(body);
-
             const geometry = new THREE.BoxGeometry(width, height, depth);
             const material = new THREE.MeshStandardMaterial({ color: 0x8888ff });
             const mesh = new THREE.Mesh(geometry, material);
-            // We rotate the visual mesh differently to create the ramp shape
-            mesh.position.copy(body.position);
-            mesh.quaternion.copy(body.quaternion);
-            mesh.rotation.x += angle;
+            
+            // We create a custom shape from a box for the ramp
+            const shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
+            const body = new CANNON.Body({ mass: 0 });
+
+            mesh.position.set(position.x, position.y + height / 2, position.z);
+            mesh.quaternion.setFromEuler(0, rotation.y, 0);
+
+            const rampAngle = Math.atan2(height, depth);
+            mesh.rotation.x += rampAngle; // Visual rotation
+
+            body.position.copy(mesh.position);
+            body.quaternion.copy(mesh.quaternion);
+            
+            // Adjust body rotation to match the visual ramp slope
+            const cannonQuaternion = new CANNON.Quaternion();
+            cannonQuaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), rampAngle);
+            body.quaternion = body.quaternion.mult(cannonQuaternion);
+
+            body.addShape(shape);
+            world.addBody(body);
+            
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             scene.add(mesh);
@@ -355,40 +513,58 @@
         function updatePlayer() {
             if (!player.body) return;
             
-            player.isGrounded = false; // Assume not grounded until a collision proves otherwise
+            // Reset grounded state at the start of each frame
+            // The collision listener will set it to true if a collision occurs
+            player.isGrounded = false;
+            world.contacts.forEach(contact => {
+                 if(contact.bi === player.body || contact.bj === player.body){
+                    // Check which body is the player and get the contact normal accordingly
+                    const normal = contact.bi === player.body ? contact.ni : new CANNON.Vec3(-contact.ni.x, -contact.ni.y, -contact.ni.z);
+                    if (normal.y > 0.5) {
+                        player.isGrounded = true;
+                    }
+                }
+            });
+
 
             const forward = new THREE.Vector3();
             camera.getWorldDirection(forward);
             forward.y = 0;
             forward.normalize();
             
-            const right = new THREE.Vector3().crossVectors(camera.up, forward).normalize();
-
-            const force = new CANNON.Vec3(0, 0, 0);
-            const moveSpeed = player.speed;
-
+            const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
+            
+            // Note: In Three.js, the positive Z-axis is coming out of the screen.
+            // Right vector needs to be negated for intuitive A/D controls.
+            const moveDirection = new THREE.Vector3();
             if (keys['ArrowUp'] || keys['KeyW']) {
-                force.x += forward.x * moveSpeed;
-                force.z += forward.z * moveSpeed;
+                moveDirection.add(forward);
             }
             if (keys['ArrowDown'] || keys['KeyS']) {
-                force.x -= forward.x * moveSpeed;
-                force.z -= forward.z * moveSpeed;
+                moveDirection.sub(forward);
             }
             if (keys['ArrowLeft'] || keys['KeyA']) {
-                force.x += right.x * moveSpeed;
-                force.z += right.z * moveSpeed;
+                moveDirection.sub(right);
             }
             if (keys['ArrowRight'] || keys['KeyD']) {
-                force.x -= right.x * moveSpeed;
-                force.z -= right.z * moveSpeed;
+                moveDirection.add(right);
             }
             
-            player.body.applyForce(force, player.body.position);
+            moveDirection.normalize();
+            const force = new CANNON.Vec3(
+                moveDirection.x * player.speed, 
+                0, 
+                moveDirection.z * player.speed
+            );
+            
+            if (player.isGrounded) {
+                 player.body.applyForce(force, player.body.position);
+            }
             
             // Ollie (Jump)
             if (keys['Space'] && player.isGrounded) {
                 player.body.velocity.y = 25; // Apply an upward impulse
+                player.isGrounded = false; // Prevent double-jumping in the same frame
             }
         }
         
@@ -396,7 +572,7 @@
             if (!player.body || !currentObjective) return;
             const playerPos = player.body.position;
             const objectivePos = currentObjective.position;
-            const distance = playerPos.distanceTo(objectivePos);
+            const distance = playerPos.distanceTo(new CANNON.Vec3(objectivePos.x, playerPos.y, objectivePos.z));
 
             if (distance < currentObjective.radius) {
                 score += 100;
@@ -416,31 +592,29 @@
         }
 
         // --- Game Loop ---
+        const clock = new THREE.Clock();
         function animate() {
-            if (time <= 0) return; // Stop the loop when game is over
+            if (time <= 0 && gameStarted) return;
             requestAnimationFrame(animate);
+            const deltaTime = clock.getDelta();
 
-            // Update physics
-            world.step(1 / 60);
+            world.step(1/60, deltaTime, 3); // Fixed timestep
 
-            // Update player logic
             updatePlayer();
             checkObjectiveCollision();
 
-            // Sync visual objects with physics bodies
             if (player.mesh && player.body) {
                 player.mesh.position.copy(player.body.position);
-                player.mesh.quaternion.copy(player.body.quaternion);
+                player.mesh.position.y -= 1; // Adjust visual mesh to align with spherical physics body
             }
             
-            // Update camera to follow player
+            // Update camera to follow player smoothly
             const cameraOffset = new THREE.Vector3(0, 8, 15);
             const playerPosition = new THREE.Vector3().copy(player.body.position);
-            const cameraPosition = playerPosition.clone().add(cameraOffset);
-            camera.position.lerp(cameraPosition, 0.1);
+            const cameraTargetPosition = playerPosition.clone().add(cameraOffset);
+            camera.position.lerp(cameraTargetPosition, 0.1);
             camera.lookAt(playerPosition);
             
-            // Animate objective
             if (currentObjective) {
                 currentObjective.mesh.rotation.y += 0.01;
             }
@@ -448,8 +622,8 @@
             renderer.render(scene, camera);
         }
         
-        // Handle window resizing
         window.addEventListener('resize', () => {
+            if (!gameStarted) return;
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
