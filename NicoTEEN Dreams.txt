@@ -1,824 +1,674 @@
-<!DOCTYPE html>
+// NiCKoTEEn dreams - GBA MMORPG ROM
+// Multiplayer pirate surfing adventure with Link Cable support
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NicoTEEN Dreams - Adventure Awaits</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+#include <gba.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-```
-    body {
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-        background: linear-gradient(180deg, #87CEEB 0%, #98FB98 50%, #F0E68C 100%);
-        color: #2F4F4F;
-        overflow-x: hidden;
-        min-height: 100vh;
-    }
+// ===== NETWORK CONSTANTS =====
+#define MAX_PLAYERS 4
+#define PACKET_SIZE 32
+#define SYNC_INTERVAL 5
+#define SERVER_TIMEOUT 300
 
-    .container {
-        min-height: 100vh;
-        position: relative;
-    }
+// ===== GAME CONSTANTS =====
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 160
+#define WORLD_WIDTH 512
+#define WORLD_HEIGHT 512
+#define CHUNK_SIZE 64
 
-    /* Animated clouds */
-    .clouds {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        overflow: hidden;
-    }
+#define PLAYER_SPEED 2
+#define GRAVITY 1
+#define JUMP_STRENGTH 8
+#define WATER_LEVEL 120
 
-    .cloud {
-        position: absolute;
-        background: white;
-        border-radius: 50px;
-        opacity: 0.8;
-        animation: float-cloud 20s infinite linear;
-    }
+// ===== MULTIPLAYER STRUCTURES =====
+typedef struct {
+u8 type;        // Packet type
+u8 playerId;    // Sender ID
+s16 x, y;       // Position
+s16 vx, vy;     // Velocity
+u8 mode;        // Game mode
+u8 action;      // Current action
+u16 health;     // Health
+u16 score;      // Score
+u8 checksum;    // Error checking
+} NetworkPacket;
 
-    .cloud::before,
-    .cloud::after {
-        content: '';
-        position: absolute;
-        background: white;
-        border-radius: 50px;
-    }
+typedef struct {
+u8 id;
+s16 x, y;
+s16 vx, vy;
+u8 frame;
+u16 health;
+u8 mode;
+u8 wheels;
+u8 weapons;
+bool active;
+bool isLocal;
+char name[8];
+u16 score;
+u8 lastSync;
+} NetworkPlayer;
 
-    .cloud1 {
-        width: 80px;
-        height: 40px;
-        top: 20%;
-        left: -100px;
-        animation-duration: 25s;
-    }
+typedef struct {
+s16 x, y;
+u8 type;
+u8 ownerId;     // Which player spawned it
+bool active;
+u8 frame;
+u16 data;       // Extra data
+} WorldObject;
 
-    .cloud1::before {
-        width: 50px;
-        height: 50px;
-        top: -25px;
-        left: 10px;
-    }
+typedef struct {
+s16 x, y;
+u8 damage;
+u8 ownerId;
+s16 vx, vy;
+bool active;
+u8 lifetime;
+} Projectile;
 
-    .cloud1::after {
-        width: 60px;
-        height: 40px;
-        top: -15px;
-        right: 10px;
-    }
+// ===== GUILD SYSTEM =====
+typedef struct {
+char name[12];
+u8 members[MAX_PLAYERS];
+u8 memberCount;
+u16 totalScore;
+u8 level;
+} Guild;
 
-    .cloud2 {
-        width: 60px;
-        height: 30px;
-        top: 40%;
-        left: -80px;
-        animation-duration: 30s;
-        animation-delay: -10s;
-    }
+// ===== GLOBAL VARIABLES =====
+NetworkPlayer players[MAX_PLAYERS];
+WorldObject worldObjects[128];
+Projectile projectiles[32];
+Guild guilds[8];
+u8 localPlayerId = 0;
+u8 playerCount = 1;
+bool isServer = false;
+bool isConnected = false;
 
-    .cloud2::before {
-        width: 40px;
-        height: 40px;
-        top: -20px;
-        left: 5px;
-    }
+// Network buffers
+NetworkPacket sendBuffer;
+NetworkPacket receiveBuffer;
+u8 syncTimer = 0;
+u8 connectionTimer = 0;
 
-    .cloud2::after {
-        width: 50px;
-        height: 30px;
-        top: -10px;
-        right: 5px;
-    }
+// World state
+s16 cameraX = 0, cameraY = 0;
+u8 currentChunk = 0;
+bool worldLoaded[64] = {false}; // Track loaded chunks
 
-    @keyframes float-cloud {
-        0% { transform: translateX(-100px); }
-        100% { transform: translateX(calc(100vw + 100px)); }
-    }
+// Game state
+u8 gameMode = 0; // 0=menu, 1=lobby, 2=playing, 3=guild
+u16 globalScore = 0;
+u8 waveTimer = 0;
 
-    /* Header */
-    header {
-        background: linear-gradient(135deg, #FF6B9D, #FFE66D);
-        padding: 2rem;
-        text-align: center;
-        border-bottom: 5px solid #FF8E53;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        position: relative;
-    }
+// ===== PACKET TYPES =====
+#define PACKET_PLAYER_UPDATE    0x01
+#define PACKET_OBJECT_SPAWN     0x02
+#define PACKET_OBJECT_DESTROY   0x03
+#define PACKET_PROJECTILE_FIRE  0x04
+#define PACKET_CHAT_MESSAGE     0x05
+#define PACKET_GUILD_CREATE     0x06
+#define PACKET_GUILD_JOIN       0x07
+#define PACKET_PLAYER_JOIN      0x08
+#define PACKET_PLAYER_LEAVE     0x09
+#define PACKET_WORLD_UPDATE     0x0A
 
-    .logo {
-        display: inline-block;
-        position: relative;
-    }
-
-    .logo-icon {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(45deg, #FF8E53, #FF6B9D);
-        border-radius: 50%;
-        border: 5px solid white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        animation: bob 2s ease-in-out infinite;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        position: relative;
-    }
-
-    .logo-icon::before {
-        content: "⭐";
-        font-size: 2.5rem;
-        animation: sparkle 3s ease-in-out infinite;
-    }
-
-    @keyframes bob {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-
-    @keyframes sparkle {
-        0%, 100% { transform: scale(1) rotate(0deg); }
-        50% { transform: scale(1.2) rotate(180deg); }
-    }
-
-    h1 {
-        font-size: 4rem;
-        font-weight: bold;
-        color: white;
-        text-shadow: 3px 3px 0px #2F4F4F, 6px 6px 10px rgba(0,0,0,0.3);
-        margin-bottom: 0.5rem;
-        letter-spacing: 2px;
-    }
-
-    .tagline {
-        font-size: 1.5rem;
-        color: white;
-        text-shadow: 2px 2px 0px #2F4F4F;
-        font-weight: bold;
-    }
-
-    /* Navigation */
-    nav {
-        background: #4ECDC4;
-        padding: 1rem;
-        text-align: center;
-        border-bottom: 3px solid #45B7B8;
-    }
-
-    .nav-button {
-        background: linear-gradient(135deg, #FFE66D, #FF8E53);
-        color: #2F4F4F;
-        border: 3px solid white;
-        padding: 12px 24px;
-        margin: 0 10px;
-        border-radius: 25px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    .nav-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        background: linear-gradient(135deg, #FF8E53, #FFE66D);
-    }
-
-    .nav-button.active {
-        background: linear-gradient(135deg, #FF6B9D, #FFE66D);
-        transform: translateY(-2px);
-    }
-
-    /* Main content */
-    main {
-        padding: 3rem 2rem;
-        text-align: center;
-    }
-
-    .content-section {
-        display: none;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .content-section.active {
-        display: block;
-    }
-
-    .hero-content {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 30px;
-        padding: 3rem;
-        margin-bottom: 3rem;
-        border: 4px solid #4ECDC4;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-
-    .hero-title {
-        font-size: 3rem;
-        color: #2F4F4F;
-        margin-bottom: 1.5rem;
-        text-shadow: 2px 2px 0px #4ECDC4;
-    }
-
-    .hero-description {
-        font-size: 1.3rem;
-        line-height: 1.6;
-        color: #2F4F4F;
-        margin-bottom: 2rem;
-    }
-
-    /* Game Section */
-    .game-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        padding: 2rem;
-        border: 4px solid #FF6B9D;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        margin: 2rem auto;
-        max-width: 800px;
-    }
-
-    .game-canvas {
-        border: 4px solid #4ECDC4;
-        border-radius: 15px;
-        background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
-        display: block;
-        margin: 0 auto;
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-    }
-
-    .game-controls {
-        margin-top: 1rem;
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .control-button {
-        background: linear-gradient(135deg, #4ECDC4, #45B7B8);
-        color: white;
-        border: 3px solid white;
-        padding: 10px 20px;
-        border-radius: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    .control-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-    }
-
-    .control-button:active {
-        transform: translateY(0px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    /* Features */
-    .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-    }
-
-    .feature-card {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 25px;
-        padding: 2rem;
-        border: 4px solid #FFE66D;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .feature-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255, 230, 109, 0.3), transparent);
-        transform: rotate(45deg);
-        transition: all 0.5s ease;
-        opacity: 0;
-    }
-
-    .feature-card:hover::before {
-        animation: shine 0.5s ease-in-out;
-    }
-
-    @keyframes shine {
-        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
-        50% { opacity: 1; }
-        100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
-    }
-
-    .feature-card:hover {
-        transform: translateY(-10px) scale(1.05);
-        border-color: #FF6B9D;
-    }
-
-    .feature-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        display: block;
-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-    }
-
-    .feature-title {
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-        color: #2F4F4F;
-        text-shadow: 1px 1px 0px #4ECDC4;
-    }
-
-    .feature-description {
-        color: #2F4F4F;
-        line-height: 1.5;
-        font-size: 1.1rem;
-    }
-
-    /* Footer */
-    footer {
-        background: linear-gradient(135deg, #2F4F4F, #4ECDC4);
-        color: white;
-        padding: 2rem;
-        text-align: center;
-        margin-top: 3rem;
-        border-top: 5px solid #FF6B9D;
-    }
-
-    .social-links {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .social-link {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #FF6B9D, #FFE66D);
-        border-radius: 50%;
-        border: 3px solid white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        color: #2F4F4F;
-        font-size: 1.8rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-
-    .social-link:hover {
-        transform: translateY(-5px) scale(1.1);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.4);
-    }
-
-    /* Score display */
-    .score-display {
-        background: linear-gradient(135deg, #FFE66D, #FF8E53);
-        border: 3px solid white;
-        border-radius: 20px;
-        padding: 10px 20px;
-        margin: 1rem;
-        display: inline-block;
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: #2F4F4F;
-        text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Responsive design */
-    @media (max-width: 768px) {
-        h1 {
-            font-size: 2.5rem;
-        }
-        
-        .hero-title {
-            font-size: 2rem;
-        }
-        
-        .game-canvas {
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-        }
-        
-        .nav-button {
-            margin: 5px;
-            padding: 8px 16px;
-            font-size: 1rem;
-        }
-    }
-</style>
-```
-
-</head>
-<body>
-    <div class="container">
-        <!-- Animated clouds -->
-        <div class="clouds">
-            <div class="cloud cloud1"></div>
-            <div class="cloud cloud2"></div>
-        </div>
+// ===== SPRITE DATA =====
+const u32 playerSprites[256] = {
+// Player 1 - Red bandana
+0x00000000, 0x00111000, 0x01122110, 0x12233221,
+0x12277221, 0x01122110, 0x00111000, 0x00000000,
 
 ```
-    <!-- Header -->
-    <header>
-        <div class="logo">
-            <div class="logo-icon"></div>
-            <h1>NicoTEEN Dreams</h1>
-            <p class="tagline">Con Ife - Adventure Awaits!</p>
-        </div>
-    </header>
+// Player 2 - Blue bandana  
+0x00000000, 0x00111000, 0x01122110, 0x12233221,
+0x12244221, 0x01122110, 0x00111000, 0x00000000,
 
-    <!-- Navigation -->
-    <nav>
-        <button class="nav-button active" onclick="showSection('home')">🏠 Home</button>
-        <button class="nav-button" onclick="showSection('game')">🎮 Ocean Adventure</button>
-        <button class="nav-button" onclick="showSection('features')">✨ Features</button>
-        <button class="nav-button" onclick="showSection('about')">📖 About</button>
-    </nav>
+// Player 3 - Green bandana
+0x00000000, 0x00111000, 0x01122110, 0x12233221,
+0x12255221, 0x01122110, 0x00111000, 0x00000000,
 
-    <!-- Main Content -->
-    <main>
-        <!-- Home Section -->
-        <div id="home" class="content-section active">
-            <div class="hero-content">
-                <h2 class="hero-title">Welcome to Your Adventure!</h2>
-                <p class="hero-description">
-                    Set sail on an epic journey through colorful seas and magical islands! 
-                    Experience the charm of cel-shaded adventures with smooth sailing, 
-                    treasure hunting, and endless exploration in our Wind Waker-inspired world.
-                </p>
-                <button class="nav-button" onclick="showSection('game')">🚢 Start Your Journey!</button>
-            </div>
-        </div>
+// Player 4 - Yellow bandana
+0x00000000, 0x00111000, 0x01122110, 0x12233221,
+0x12266221, 0x01122110, 0x00111000, 0x00000000,
 
-        <!-- Game Section -->
-        <div id="game" class="content-section">
-            <div class="game-container">
-                <h2 class="hero-title">Ocean Adventure</h2>
-                <div class="score-display">⭐ Score: <span id="score">0</span> | 💰 Treasures: <span id="treasures">0</span></div>
-                <canvas id="gameCanvas" class="game-canvas" width="600" height="400"></canvas>
-                <div class="game-controls">
-                    <button class="control-button" onclick="game.movePlayer('up')">⬆️ Up</button>
-                    <button class="control-button" onclick="game.movePlayer('down')">⬇️ Down</button>
-                    <button class="control-button" onclick="game.movePlayer('left')">⬅️ Left</button>
-                    <button class="control-button" onclick="game.movePlayer('right')">➡️ Right</button>
-                    <button class="control-button" onclick="game.restart()">🔄 Restart</button>
-                </div>
-                <p style="margin-top: 1rem; color: #2F4F4F;">
-                    🚢 Sail your boat to collect treasures! Use WASD or arrow keys to move, or tap the buttons above!
-                </p>
-            </div>
-        </div>
-
-        <!-- Features Section -->
-        <div id="features" class="content-section">
-            <div class="features">
-                <div class="feature-card">
-                    <span class="feature-icon">🌊</span>
-                    <h3 class="feature-title">Cel-Shaded Beauty</h3>
-                    <p class="feature-description">
-                        Experience the timeless art style of Wind Waker with vibrant colors, 
-                        smooth animations, and a cartoon aesthetic that never gets old.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <span class="feature-icon">⛵</span>
-                    <h3 class="feature-title">Ocean Exploration</h3>
-                    <p class="feature-description">
-                        Sail across endless seas, discover hidden treasures, and explore 
-                        mysterious islands in your trusty sailboat adventure.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <span class="feature-icon">🎨</span>
-                    <h3 class="feature-title">Colorful World</h3>
-                    <p class="feature-description">
-                        Immerse yourself in a world filled with bright blues, sunny yellows, 
-                        and magical gradients that bring joy to every moment.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- About Section -->
-        <div id="about" class="content-section">
-            <div class="hero-content">
-                <h2 class="hero-title">About NicoTEEN Dreams</h2>
-                <p class="hero-description">
-                    Inspired by the legendary Wind Waker's art style, NicoTEEN Dreams brings 
-                    you a nostalgic yet fresh adventure experience. With cel-shaded graphics, 
-                    vibrant colors, and smooth animations, we capture the magic of classic 
-                    adventure games while creating something entirely new.
-                </p>
-                <p class="hero-description">
-                    Join Link... er, join our hero on an unforgettable journey across the Great Sea!
-                </p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="social-links">
-            <a href="#" class="social-link">🏴‍☠️</a>
-            <a href="#" class="social-link">⚓</a>
-            <a href="#" class="social-link">🗺️</a>
-            <a href="#" class="social-link">💌</a>
-        </div>
-        <p>&copy; 2025 NicoTEEN Dreams. All adventures reserved. 🌊⭐</p>
-    </footer>
-</div>
-
-<script>
-    // Navigation functionality
-    function showSection(sectionId) {
-        // Hide all sections
-        const sections = document.querySelectorAll('.content-section');
-        sections.forEach(section => section.classList.remove('active'));
-        
-        // Show selected section
-        document.getElementById(sectionId).classList.add('active');
-        
-        // Update nav buttons
-        const buttons = document.querySelectorAll('.nav-button');
-        buttons.forEach(button => button.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    // Game logic inspired by Wind Waker's ocean exploration
-    class OceanAdventure {
-        constructor() {
-            this.canvas = document.getElementById('gameCanvas');
-            this.ctx = this.canvas.getContext('2d');
-            this.score = 0;
-            this.treasureCount = 0;
-            
-            // Player boat
-            this.player = {
-                x: 300,
-                y: 200,
-                size: 30,
-                speed: 4,
-                angle: 0
-            };
-            
-            // Treasures and obstacles
-            this.treasures = [];
-            this.waves = [];
-            this.clouds = [];
-            
-            this.init();
-        }
-        
-        init() {
-            // Create initial treasures
-            for (let i = 0; i < 8; i++) {
-                this.createTreasure();
-            }
-            
-            // Create waves
-            for (let i = 0; i < 12; i++) {
-                this.waves.push({
-                    x: Math.random() * this.canvas.width,
-                    y: Math.random() * this.canvas.height,
-                    size: Math.random() * 20 + 10,
-                    speed: Math.random() * 0.5 + 0.2,
-                    angle: Math.random() * Math.PI * 2
-                });
-            }
-            
-            // Create clouds
-            for (let i = 0; i < 6; i++) {
-                this.clouds.push({
-                    x: Math.random() * this.canvas.width,
-                    y: Math.random() * 100 + 20,
-                    size: Math.random() * 40 + 20,
-                    speed: Math.random() * 0.3 + 0.1
-                });
-            }
-            
-            this.gameLoop();
-        }
-        
-        createTreasure() {
-            this.treasures.push({
-                x: Math.random() * (this.canvas.width - 40) + 20,
-                y: Math.random() * (this.canvas.height - 40) + 20,
-                size: 25,
-                collected: false,
-                sparkle: Math.random() * Math.PI * 2
-            });
-        }
-        
-        movePlayer(direction) {
-            const speed = this.player.speed;
-            
-            switch(direction) {
-                case 'up':
-                    this.player.y = Math.max(this.player.size/2, this.player.y - speed);
-                    this.player.angle = -Math.PI/2;
-                    break;
-                case 'down':
-                    this.player.y = Math.min(this.canvas.height - this.player.size/2, this.player.y + speed);
-                    this.player.angle = Math.PI/2;
-                    break;
-                case 'left':
-                    this.player.x = Math.max(this.player.size/2, this.player.x - speed);
-                    this.player.angle = Math.PI;
-                    break;
-                case 'right':
-                    this.player.x = Math.min(this.canvas.width - this.player.size/2, this.player.x + speed);
-                    this.player.angle = 0;
-                    break;
-            }
-        }
-        
-        update() {
-            // Update waves
-            this.waves.forEach(wave => {
-                wave.angle += wave.speed;
-                wave.x += Math.cos(wave.angle) * 0.5;
-                wave.y += Math.sin(wave.angle) * 0.3;
-                
-                // Wrap around screen
-                if (wave.x > this.canvas.width + 50) wave.x = -50;
-                if (wave.x < -50) wave.x = this.canvas.width + 50;
-                if (wave.y > this.canvas.height + 50) wave.y = -50;
-                if (wave.y < -50) wave.y = this.canvas.height + 50;
-            });
-            
-            // Update clouds
-            this.clouds.forEach(cloud => {
-                cloud.x += cloud.speed;
-                if (cloud.x > this.canvas.width + cloud.size) {
-                    cloud.x = -cloud.size;
-                }
-            });
-            
-            // Update treasure sparkles
-            this.treasures.forEach(treasure => {
-                treasure.sparkle += 0.1;
-            });
-            
-            // Check collisions
-            this.checkCollisions();
-        }
-        
-        checkCollisions() {
-            this.treasures.forEach((treasure, index) => {
-                if (!treasure.collected) {
-                    const dx = this.player.x - treasure.x;
-                    const dy = this.player.y - treasure.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < this.player.size/2 + treasure.size/2) {
-                        treasure.collected = true;
-                        this.score += 100;
-                        this.treasureCount++;
-                        this.updateScoreDisplay();
-                        
-                        // Create new treasure
-                        setTimeout(() => {
-                            this.createTreasure();
-                        }, 1000);
-                    }
-                }
-            });
-        }
-        
-        draw() {
-            // Clear canvas with ocean gradient
-            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-            gradient.addColorStop(0, '#87CEEB');
-            gradient.addColorStop(0.7, '#4682B4');
-            gradient.addColorStop(1, '#191970');
-            this.ctx.fillStyle = gradient;
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            
-            // Draw clouds
-            this.clouds.forEach(cloud => {
-                this.ctx.save();
-                this.ctx.globalAlpha = 0.8;
-                this.ctx.fillStyle = 'white';
-                this.ctx.beginPath();
-                this.ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
-                this.ctx.arc(cloud.x + cloud.size * 0.6, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
-                this.ctx.arc(cloud.x - cloud.size * 0.6, cloud.y, cloud.size * 0.8, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.restore();
-            });
-            
-            // Draw waves
-            this.waves.forEach(wave => {
-                this.ctx.save();
-                this.ctx.globalAlpha = 0.3;
-                this.ctx.fillStyle = 'white';
-                this.ctx.beginPath();
-                this.ctx.ellipse(wave.x, wave.y, wave.size, wave.size/2, wave.angle, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.restore();
-            });
-            
-            // Draw treasures
-            this.treasures.forEach(treasure => {
-                if (!treasure.collected) {
-                    this.ctx.save();
-                    this.ctx.translate(treasure.x, treasure.y);
-                    
-                    // Sparkle effect
-                    this.ctx.save();
-                    this.ctx.globalAlpha = 0.7 + Math.sin(treasure.sparkle) * 0.3;
-                    this.ctx.fillStyle = '#FFD700';
-                    this.ctx.strokeStyle = '#FFA500';
-                    this.ctx.lineWidth = 3;
-                    this.ctx.beginPath();
-                    this.ctx.arc(0, 0, treasure.size/2, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.stroke();
-                    this.ctx.restore();
-                    
-                    // Treasure chest details
-                    this.ctx.fillStyle = '#8B4513';
-                    this.ctx.fillRect(-treasure.size/3, -treasure.size/4, treasure.size*2/3, treasure.size/2);
-                    this.ctx.fillStyle = '#FFD700';
-                    this.ctx.fillRect(-treasure.size/4, -treasure.size/6, treasure.size/2, treasure.size/8);
-                    
-                    this.ctx.restore();
-                }
-            });
-            
-            // Draw player boat
-            this.ctx.save();
-            this.ctx.translate(this.player.x, this.player.y);
-            this.ctx.rotate(this.player.angle);
-            
-            // Boat hull
-            this.ctx.fillStyle = '#8B4513';
-            this.ctx.beginPath();
-            this.ctx.ellipse(0, 0, this.player.size/2, this.player.size/3, 0, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // Boat details
-            this.ctx.strokeStyle = '#654321';
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
-            
-            // Sail
-            this.ctx.fillStyle = 'white';
-            this.ctx.beginPath();
-            this.ctx.moveTo(-5, -this.player.size/2);
-            this.ctx.lineTo(-5, this.player.size/2);
-            this.ctx.lineTo(this.player.size/3, this.player.size/4);
-            this.ctx.lineTo(this.player.size/3, -this.player.size/4);
-            this.ctx.closePath();
-            this.ctx.fill();
-            this.ctx.strokeStyle = '#ddd';
-            this.ctx.stroke();
-            
-            // Mast
-            this.ctx.strokeStyle = '#8B4513';
-            this.ctx.lineWidth = 3;
-            this.ctx.beginPath();
-            this.ctx.moveTo(-5, -this.player.size/2);
-            this.ctx.lineTo(-5, this.player.size/2);
-            this.ctx.stroke();
-            
-            this.ctx.restore();
-        }
-        
-        updateScoreDisplay() {
-            document.getElementById('score').textContent = this.score;
-            document.getElementById('treasures').textContent = this.treasureCount;
-        }
-        
-        restart() {
-            this
+// Animation frames for each mode...
 ```
+
+};
+
+const u32 worldTiles[512] = {
+// Ocean tiles with animation
+0x11111111, 0x22222222, 0x33333333, 0x22222222,
+// Island tiles
+0x44444444, 0x45555554, 0x56666665, 0x56777765,
+// Treasure, wheels, weapons, zombies…
+};
+
+// ===== NETWORK FUNCTIONS =====
+void initNetwork(void) {
+REG_RCNT = R_NORMAL;
+REG_SIOCNT = SIO_NORMAL_32 | SIO_IRQ_ENABLE | SIO_START;
+
+```
+// Try to detect if we're master (server)
+if(REG_SIOCNT & SIO_SI_STATE) {
+    isServer = true;
+    localPlayerId = 0;
+} else {
+    isServer = false;
+    // Wait for server assignment
+}
+```
+
+}
+
+void sendPacket(NetworkPacket* packet) {
+if(!isConnected) return;
+
+```
+packet->playerId = localPlayerId;
+packet->checksum = calculateChecksum((u8*)packet, PACKET_SIZE - 1);
+
+REG_SIODATA32 = *(u32*)packet;
+REG_SIOCNT |= SIO_START;
+```
+
+}
+
+bool receivePacket(NetworkPacket* packet) {
+if(!(REG_SIOCNT & SIO_RECV_COMPLETE)) return false;
+
+```
+*(u32*)packet = REG_SIODATA32;
+
+// Verify checksum
+u8 checksum = calculateChecksum((u8*)packet, PACKET_SIZE - 1);
+if(checksum != packet->checksum) return false;
+
+return true;
+```
+
+}
+
+u8 calculateChecksum(u8* data, u8 length) {
+u8 sum = 0;
+for(u8 i = 0; i < length; i++) {
+sum ^= data[i];
+}
+return sum;
+}
+
+void handleNetworkPacket(NetworkPacket* packet) {
+switch(packet->type) {
+case PACKET_PLAYER_UPDATE:
+updateRemotePlayer(packet);
+break;
+
+```
+    case PACKET_OBJECT_SPAWN:
+        spawnNetworkObject(packet->x, packet->y, packet->action, packet->playerId);
+        break;
+        
+    case PACKET_OBJECT_DESTROY:
+        destroyNetworkObject(packet->x, packet->y);
+        break;
+        
+    case PACKET_PROJECTILE_FIRE:
+        fireNetworkProjectile(packet);
+        break;
+        
+    case PACKET_PLAYER_JOIN:
+        addNetworkPlayer(packet);
+        break;
+        
+    case PACKET_PLAYER_LEAVE:
+        removeNetworkPlayer(packet->playerId);
+        break;
+        
+    case PACKET_GUILD_CREATE:
+        createNetworkGuild(packet);
+        break;
+}
+```
+
+}
+
+// ===== PLAYER MANAGEMENT =====
+void initPlayers(void) {
+for(u8 i = 0; i < MAX_PLAYERS; i++) {
+players[i].active = false;
+players[i].id = i;
+}
+
+```
+// Initialize local player
+NetworkPlayer* player = &players[localPlayerId];
+player->active = true;
+player->isLocal = true;
+player->x = 120 + (localPlayerId * 20);
+player->y = 80;
+player->health = 100;
+player->mode = 0; // Swimming
+player->score = 0;
+strcpy(player->name, "PLAYER");
+player->name[6] = '1' + localPlayerId;
+player->name[7] = '\0';
+```
+
+}
+
+void updateRemotePlayer(NetworkPacket* packet) {
+if(packet->playerId >= MAX_PLAYERS) return;
+
+```
+NetworkPlayer* player = &players[packet->playerId];
+player->active = true;
+player->x = packet->x;
+player->y = packet->y;
+player->vx = packet->vx;
+player->vy = packet->vy;
+player->mode = packet->mode;
+player->health = packet->health;
+player->score = packet->score;
+player->lastSync = 0;
+```
+
+}
+
+void broadcastPlayerUpdate(void) {
+if(!isConnected) return;
+
+```
+NetworkPlayer* player = &players[localPlayerId];
+
+sendBuffer.type = PACKET_PLAYER_UPDATE;
+sendBuffer.x = player->x;
+sendBuffer.y = player->y;
+sendBuffer.vx = player->vx;
+sendBuffer.vy = player->vy;
+sendBuffer.mode = player->mode;
+sendBuffer.action = 0;
+sendBuffer.health = player->health;
+sendBuffer.score = player->score;
+
+sendPacket(&sendBuffer);
+```
+
+}
+
+// ===== WORLD MANAGEMENT =====
+void loadWorldChunk(u8 chunkId) {
+if(worldLoaded[chunkId]) return;
+
+```
+// Clear objects in this chunk
+for(u8 i = 0; i < 128; i++) {
+    if(!worldObjects[i].active) continue;
+    
+    u8 objChunk = (worldObjects[i].x / CHUNK_SIZE) + 
+                  (worldObjects[i].y / CHUNK_SIZE) * 8;
+    if(objChunk == chunkId) {
+        worldObjects[i].active = false;
+    }
+}
+
+// Generate new objects based on chunk type
+s16 chunkX = (chunkId % 8) * CHUNK_SIZE;
+s16 chunkY = (chunkId / 8) * CHUNK_SIZE;
+
+// Procedural generation based on chunk coordinates
+u8 seed = chunkX + chunkY * 7 + 42;
+
+for(u8 i = 0; i < 8; i++) {
+    seed = (seed * 13 + 7) % 255;
+    
+    if(seed < 50) { // 20% chance for treasure
+        spawnWorldObject(chunkX + (seed % CHUNK_SIZE), 
+                       chunkY + ((seed * 3) % CHUNK_SIZE), 0, 255);
+    } else if(seed < 80) { // 12% chance for zombie
+        spawnWorldObject(chunkX + (seed % CHUNK_SIZE), 
+                       chunkY + ((seed * 5) % CHUNK_SIZE), 3, 255);
+    } else if(seed < 100) { // 8% chance for wheel
+        spawnWorldObject(chunkX + (seed % CHUNK_SIZE), 
+                       chunkY + ((seed * 7) % CHUNK_SIZE), 1, 255);
+    }
+}
+
+worldLoaded[chunkId] = true;
+```
+
+}
+
+void spawnWorldObject(s16 x, s16 y, u8 type, u8 ownerId) {
+for(u8 i = 0; i < 128; i++) {
+if(!worldObjects[i].active) {
+worldObjects[i].x = x;
+worldObjects[i].y = y;
+worldObjects[i].type = type;
+worldObjects[i].ownerId = ownerId;
+worldObjects[i].active = true;
+worldObjects[i].frame = 0;
+
+```
+        // Broadcast to other players if we're server
+        if(isServer && ownerId == 255) {
+            sendBuffer.type = PACKET_OBJECT_SPAWN;
+            sendBuffer.x = x;
+            sendBuffer.y = y;
+            sendBuffer.action = type;
+            sendBuffer.playerId = localPlayerId;
+            sendPacket(&sendBuffer);
+        }
+        break;
+    }
+}
+```
+
+}
+
+// ===== COMBAT SYSTEM =====
+void fireProjectile(s16 x, s16 y, s16 vx, s16 vy, u8 damage) {
+for(u8 i = 0; i < 32; i++) {
+if(!projectiles[i].active) {
+projectiles[i].x = x;
+projectiles[i].y = y;
+projectiles[i].vx = vx;
+projectiles[i].vy = vy;
+projectiles[i].damage = damage;
+projectiles[i].ownerId = localPlayerId;
+projectiles[i].active = true;
+projectiles[i].lifetime = 120; // 2 seconds
+
+```
+        // Broadcast projectile
+        sendBuffer.type = PACKET_PROJECTILE_FIRE;
+        sendBuffer.x = x;
+        sendBuffer.y = y;
+        sendBuffer.vx = vx;
+        sendBuffer.vy = vy;
+        sendBuffer.action = damage;
+        sendPacket(&sendBuffer);
+        break;
+    }
+}
+```
+
+}
+
+void updateProjectiles(void) {
+for(u8 i = 0; i < 32; i++) {
+if(!projectiles[i].active) continue;
+
+```
+    projectiles[i].x += projectiles[i].vx;
+    projectiles[i].y += projectiles[i].vy;
+    projectiles[i].lifetime--;
+    
+    if(projectiles[i].lifetime == 0) {
+        projectiles[i].active = false;
+        continue;
+    }
+    
+    // Check collision with players
+    for(u8 j = 0; j < MAX_PLAYERS; j++) {
+        if(!players[j].active || j == projectiles[i].ownerId) continue;
+        
+        if(abs(players[j].x - projectiles[i].x) < 8 && 
+           abs(players[j].y - projectiles[i].y) < 8) {
+            
+            players[j].health -= projectiles[i].damage;
+            projectiles[i].active = false;
+            
+            if(j == localPlayerId) {
+                // We got hit, broadcast health update
+                broadcastPlayerUpdate();
+            }
+            break;
+        }
+    }
+}
+```
+
+}
+
+// ===== GUILD SYSTEM =====
+void createGuild(char* guildName) {
+for(u8 i = 0; i < 8; i++) {
+if(guilds[i].memberCount == 0) {
+strcpy(guilds[i].name, guildName);
+guilds[i].members[0] = localPlayerId;
+guilds[i].memberCount = 1;
+guilds[i].totalScore = players[localPlayerId].score;
+guilds[i].level = 1;
+
+```
+        // Broadcast guild creation
+        sendBuffer.type = PACKET_GUILD_CREATE;
+        sendBuffer.x = i; // Guild ID
+        sendBuffer.y = localPlayerId;
+        sendPacket(&sendBuffer);
+        break;
+    }
+}
+```
+
+}
+
+void updateGuilds(void) {
+for(u8 i = 0; i < 8; i++) {
+if(guilds[i].memberCount == 0) continue;
+
+```
+    // Update total score
+    guilds[i].totalScore = 0;
+    for(u8 j = 0; j < guilds[i].memberCount; j++) {
+        u8 memberId = guilds[i].members[j];
+        if(players[memberId].active) {
+            guilds[i].totalScore += players[memberId].score;
+        }
+    }
+    
+    // Level up guild based on total score
+    guilds[i].level = (guilds[i].totalScore / 1000) + 1;
+    if(guilds[i].level > 10) guilds[i].level = 10;
+}
+```
+
+}
+
+// ===== MAIN GAME FUNCTIONS =====
+int main(void) {
+// Initialize GBA
+REG_DISPCNT = MODE_0 | BG0_ENABLE | BG1_ENABLE | OBJ_ENABLE | OBJ_1D_MAP;
+
+```
+// Load graphics
+dmaCopy(playerSprites, &TILE_BASE_ADR(4)[0], sizeof(playerSprites));
+dmaCopy(worldTiles, &TILE_BASE_ADR(0)[0], sizeof(worldTiles));
+
+// Initialize systems
+initNetwork();
+initPlayers();
+
+// Game loop
+while(1) {
+    VBlankIntrWait();
+    
+    // Handle network
+    if(receivePacket(&receiveBuffer)) {
+        handleNetworkPacket(&receiveBuffer);
+    }
+    
+    updateGame();
+    renderGame();
+    
+    syncTimer++;
+    if(syncTimer >= SYNC_INTERVAL) {
+        syncTimer = 0;
+        broadcastPlayerUpdate();
+    }
+}
+
+return 0;
+```
+
+}
+
+void updateGame(void) {
+if(gameMode != 2) return; // Only update during gameplay
+
+```
+updateLocalPlayer();
+updateProjectiles();
+updateWorldObjects();
+updateCamera();
+updateGuilds();
+
+// Check if we need to load new chunks
+u8 playerChunk = (players[localPlayerId].x / CHUNK_SIZE) + 
+                 (players[localPlayerId].y / CHUNK_SIZE) * 8;
+
+if(playerChunk != currentChunk) {
+    loadWorldChunk(playerChunk);
+    currentChunk = playerChunk;
+    
+    // Load adjacent chunks
+    for(s8 dx = -1; dx <= 1; dx++) {
+        for(s8 dy = -1; dy <= 1; dy++) {
+            u8 adjChunk = playerChunk + dx + (dy * 8);
+            if(adjChunk < 64) {
+                loadWorldChunk(adjChunk);
+            }
+        }
+    }
+}
+```
+
+}
+
+void updateLocalPlayer(void) {
+NetworkPlayer* player = &players[localPlayerId];
+u16 keys = keysHeld();
+
+```
+// Movement (similar to single player but networked)
+if(keys & KEY_LEFT) player->vx = -PLAYER_SPEED;
+else if(keys & KEY_RIGHT) player->vx = PLAYER_SPEED;
+else player->vx = 0;
+
+if(keys & KEY_UP) player->vy = -PLAYER_SPEED;
+else if(keys & KEY_DOWN) player->vy = PLAYER_SPEED;
+else player->vy = 0;
+
+// Combat
+if(keysDown() & KEY_A && player->weapons > 0) {
+    s16 targetX = player->x + (player->vx * 10);
+    s16 targetY = player->y + (player->vy * 10);
+    fireProjectile(player->x, player->y, 
+                  targetX - player->x, targetY - player->y, 25);
+    player->weapons--;
+}
+
+// Apply movement
+player->x += player->vx;
+player->y += player->vy;
+
+// Boundary checking
+if(player->x < 0) player->x = 0;
+if(player->x >= WORLD_WIDTH) player->x = WORLD_WIDTH - 1;
+if(player->y < 0) player->y = 0;
+if(player->y >= WORLD_HEIGHT) player->y = WORLD_HEIGHT - 1;
+
+player->frame = (player->frame + 1) % 16;
+```
+
+}
+
+void updateCamera(void) {
+NetworkPlayer* player = &players[localPlayerId];
+
+```
+cameraX = player->x - SCREEN_WIDTH / 2;
+cameraY = player->y - SCREEN_HEIGHT / 2;
+
+if(cameraX < 0) cameraX = 0;
+if(cameraY < 0) cameraY = 0;
+if(cameraX > WORLD_WIDTH - SCREEN_WIDTH) cameraX = WORLD_WIDTH - SCREEN_WIDTH;
+if(cameraY > WORLD_HEIGHT - SCREEN_HEIGHT) cameraY = WORLD_HEIGHT - SCREEN_HEIGHT;
+```
+
+}
+
+void renderGame(void) {
+// Clear sprites
+for(u8 i = 0; i < 128; i++) {
+SPRITE_GFX[i].attr0 = ATTR0_DISABLED;
+}
+
+```
+u8 spriteIndex = 0;
+
+// Render all players
+for(u8 i = 0; i < MAX_PLAYERS; i++) {
+    if(!players[i].active || spriteIndex >= 128) continue;
+    
+    s16 screenX = players[i].x - cameraX;
+    s16 screenY = players[i].y - cameraY;
+    
+    if(screenX >= -16 && screenX < SCREEN_WIDTH + 16 && 
+       screenY >= -16 && screenY < SCREEN_HEIGHT + 16) {
+        
+        SPRITE_GFX[spriteIndex].attr0 = ATTR0_NORMAL | ATTR0_COLOR_16 | 
+                                        OBJ_Y(screenY - 8);
+        SPRITE_GFX[spriteIndex].attr1 = ATTR1_SIZE_8 | OBJ_X(screenX - 4);
+        SPRITE_GFX[spriteIndex].attr2 = ATTR2_PALETTE(i) | 
+                                        ATTR2_ID(i * 16 + (players[i].frame / 4));
+        spriteIndex++;
+    }
+}
+
+// Render projectiles
+for(u8 i = 0; i < 32; i++) {
+    if(!projectiles[i].active || spriteIndex >= 128) continue;
+    
+    s16 screenX = projectiles[i].x - cameraX;
+    s16 screenY = projectiles[i].y - cameraY;
+    
+    if(screenX >= 0 && screenX < SCREEN_WIDTH && 
+       screenY >= 0 && screenY < SCREEN_HEIGHT) {
+        
+        SPRITE_GFX[spriteIndex].attr0 = ATTR0_NORMAL | ATTR0_COLOR_16 | 
+                                        OBJ_Y(screenY);
+        SPRITE_GFX[spriteIndex].attr1 = ATTR1_SIZE_8 | OBJ_X(screenX);
+        SPRITE_GFX[spriteIndex].attr2 = ATTR2_PALETTE(4) | ATTR2_ID(192);
+        spriteIndex++;
+    }
+}
+
+// Render world objects
+for(u8 i = 0; i < 128; i++) {
+    if(!worldObjects[i].active || spriteIndex >= 128) continue;
+    
+    s16 screenX = worldObjects[i].x - cameraX;
+    s16 screenY = worldObjects[i].y - cameraY;
+    
+    if(screenX >= -16 && screenX < SCREEN_WIDTH + 16 && 
+       screenY >= -16 && screenY < SCREEN_HEIGHT + 16) {
+        
+        SPRITE_GFX[spriteIndex].attr0 = ATTR0_NORMAL | ATTR0_COLOR_16 | 
+                                        OBJ_Y(screenY - 8);
+        SPRITE_GFX[spriteIndex].attr1 = ATTR1_SIZE_8 | OBJ_X(screenX - 4);
+        SPRITE_GFX[spriteIndex].attr2 = ATTR2_PALETTE(5) | 
+                                        ATTR2_ID(200 + worldObjects[i].type * 4);
+        spriteIndex++;
+    }
+}
+```
+
+}
